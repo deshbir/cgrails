@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8"?> 
+<application xmlns="http://ns.adobe.com/air/application/2.7"> 
+    <id>com.compro.cgrails.app</id> 
+    <versionNumber>1.0</versionNumber> 
+    <filename>WindowsApp</filename> 
+    <name>Windows Application - Your App Our Way</name> 
+    <copyright>Copyright (c) Compro Technologies</copyright> 
+    <supportedProfiles>extendedDesktop</supportedProfiles>
+    <initialWindow> 
+        <content>app.html</content>
+
+        <visible>true</visible> 
+	<systemChrome>standard</systemChrome>
+	<transparent>false</transparent>
+	<!-- The window's initial width. Optional. -->
+	<width>1024</width>
+
+	<!-- The window's initial height. Optional. -->
+	<height>768</height>
+
+	<!-- The window's initial x position. Optional. -->
+	<x>50</x>
+
+	<!-- The window's initial y position. Optional. -->
+	<y>50</y>
+
+	<!-- The window's minimum size, specified as a width/height pair, such as "400 200". Optional. -->
+	<minSize>800 600</minSize>
+
+	<!-- The window's initial maximum size, specified as a width/height pair, such as "1600 1200". Optional. -->
+	<maxSize>1920 1080</maxSize>
+    </initialWindow> 
+	<icon> 
+	    <image16x16>icons/app_16.png</image16x16> 
+	    <image32x32>icons/app_32.png</image32x32> 
+	    <image48x48>icons/app_48.png</image48x48> 
+	    <image128x128>icons/app_128.png</image128x128> 
+	</icon> 
+</application>

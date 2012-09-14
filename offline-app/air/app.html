@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<script type="text/javascript" src="AIRAliases.js"></script>
+		<script type="text/javascript">
+			var interface = {};
+			var localStorage = air.EncryptedLocalStore;
+			interface.setItem = function(name,str){
+				var bytes = new air.ByteArray();
+				bytes.writeUTFBytes(str);
+				try{
+					localStorage.setItem(name, bytes);
+				} catch (e){
+					air.trace("nothing to store");
+				}
+			}
+			interface.getItem = function(name){
+				var storedValue = air.EncryptedLocalStore.getItem(name);
+				try {
+					localStorage.getItem(name);
+					return storedValue.readUTFBytes(storedValue.bytesAvailable);
+				} catch (e){
+					return null;
+				}
+			}
+			interface.removeItem = function(name){
+				air.EncryptedLocalStore.removeItem(name);
+			}
+			interface.clear = function(){
+				try{
+					localStorage.reset();
+				} catch (e){
+					air.trace("already blank");
+				}
+			}
+			function engageBridge(){
+				document.getElementById("child").contentWindow.parentSandboxBridge = interface;
+			}
+		</script>
+	</head >
+	<body>
+	   <iframe
+		   src="http://www.cgrails.com/index.html"
+		   sandboxRoot="http://www.example.com/"
+		   documentRoot="app:/offline/"
+		   id="child"
+		   ondominitialize="engageBridge()"
+		   width="100%"
+		   height="100%"
+		   >
+		</iframe>
+	</body>
+</html>
+
+
