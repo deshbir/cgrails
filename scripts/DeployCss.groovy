@@ -15,22 +15,27 @@ includeTargets << grailsScript("_GrailsInit")
 		}
 	}
 
-	target(deployCSS:"Deploys CSS files") {		
-		if(!argsMap.target){
-			if (!config.cgrails?.skinning){
-				ant.echo("*****Skinning configuration not found.*****")
-			} else if(!config.cgrails.skinning.baseskin) {
-				ant.echo("*****cgrails.skinning.baseskin not found.*****")
-			} else {
-				depends(compileLESS,generateRTLCSS)
-			} 
+	target(deployCSS:"Deploys CSS files") {	
+		println config.appName
+		ant.echo("****************************************************************************");
+		ant.echo("*********** Started deploying CSS.***********");
+		if (!config.cgrails?.skinning){
+			ant.echo("********ERROR*************");
+			ant.echo("Skinning configuration not found.");
 			return
-		}
-		depends(argsMap.target)
+		} else if(!config.cgrails.skinning.baseskin) {
+		    ant.echo("********ERROR*************");
+			ant.echo("cgrails.skinning.baseskin not found.")
+			return
+		} else {
+			depends(compileLESS,generateRTLCSS)
+		} 		
+		ant.echo("*********** CSS deployed successfully.***********");
+		ant.echo("****************************************************************************");
 	}
 	
 	target(compileLESS:"Compile LESS into CSS"){
-		ant.echo("**********Cgrails Plugin compiling LESS into CSS**********")
+		ant.echo("Compiling LESS into CSS..........")
 		if(argsMap.skin){
 			runCompileLess(argsMap.skin,Constants,config)
 		} else {
@@ -46,7 +51,7 @@ includeTargets << grailsScript("_GrailsInit")
 	}
 	
 	target(generateRTLCSS:"Generate RTL CSS") {
-		ant.echo("**********Cgrails Plugin generating RTL CSS**********")
+		ant.echo("Generating RTL CSS...........")
 		depends(compileLESS)	
 		if(argsMap.skin){
 			runRTLCompileLess(argsMap.skin,Constants,config)

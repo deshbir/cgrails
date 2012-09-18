@@ -22,3 +22,9 @@ log4j = {
 
     warn   'org.mortbay.log'
 }
+
+cgrails {
+	less {
+		deploycss = false
+	}
+}
