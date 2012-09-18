@@ -5,10 +5,7 @@ class CgrailsTagLib {
 	
 	static namespace = "cgrails"
 
-	GrailsApplication grailsApplication
-	
-	//Fix for GPRESOURCES-159. Remove this code when Resources is updated to RC2
-	def grailsResourceProcessor
+	GrailsApplication grailsApplication	
 	
 	def stylesheet = { attrs, body ->
 		String src = attrs.remove('src')
@@ -46,8 +43,6 @@ class CgrailsTagLib {
 				out << "<script type='text/javascript'>less.env = 'development';less.watch();</script>"
 			}
 		} else {
-			//Fix for GPRESOURCES-159. Remove this code when Resources is updated to RC2 
-			grailsResourceProcessor.modulesByName.remove(grailsResourceProcessor.IMPLICIT_MODULE)
 			out << r.external(uri : "/" + filePath)
 		}	
 	}
