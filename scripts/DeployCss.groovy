@@ -16,7 +16,6 @@ includeTargets << grailsScript("_GrailsInit")
 	}
 
 	target(deployCSS:"Deploys CSS files") {	
-		println config.appName
 		ant.echo("****************************************************************************");
 		ant.echo("*********** Started deploying CSS.***********");
 		if (!config.cgrails?.skinning){

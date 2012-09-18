@@ -45,7 +45,7 @@ target(generate: "Generates Offline version of the application") {
    
    ant.echo("****************************************************************************");
    ant.echo("*********** Started Generating offline version for " + skin + " skin.***********");
-   depends(deployCSS)
+   //depends(deployCSS)
    ant.echo("Cleaning older package......");
    offlineApplicationBuilder.deleteOldPackage();
    ant.echo("Copying javascript files......");
