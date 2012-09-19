@@ -195,7 +195,7 @@ class OfflineApplicationBuilder {
 			} else {
 				String templatesPath = TEMPLATES_FOLDER_NAME + "\\"
 				String path = file.getPath();
-				path = path.substring(path.indexOf(templatesPath) + templatesPath.length());
+				path = path.substring(path.indexOf(templatesPath));
 				path = path.substring(0, path.indexOf(".gsp"));
 				path = path.replace("\\", "/");
 				fileList.add(path);
@@ -222,9 +222,10 @@ class OfflineApplicationBuilder {
 			def urlBuilder = new StringBuilder("http://");
 			urlBuilder.append(APP_HOST).append(":").append(APP_PORT).append("/").append(grailsApplication.metadata['app.name']);
 			urlBuilder.append("/").append(skin).append("/").append(CgrailsConstants.WORKFLOW_OFFLINE)
-				.append(templateApiURL).append("?path=").append(TEMPLATES_FOLDER_NAME).append("/").append(templatename).append("&_offlineMode=y");
+				.append(templateApiURL).append("?path=").append("/").append(templatename).append("&_offlineMode=y");
 			template = getHTML(urlBuilder.toString())
 			template = template.replace("\r\n", "").replace("\t", "");
+			templatename = templatename.substring(TEMPLATES_FOLDER_NAME.length() + 1, templatename.length())
 			jsonTemplate.put(templatename, template);
 		}
 		String contentString = "com.compro.cgrails.OfflineTemplates = " + jsonTemplate.toString(8);
