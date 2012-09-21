@@ -41,42 +41,36 @@ class FallbackDecoratorMapper extends  GrailsLayoutDecoratorMapper{
 	
 	@Override
 	public Decorator getDecorator(HttpServletRequest request, Page page) {
-		String workflow = CgrailsUtils.getWorkflow()
 		Decorator decorator = null;
-		if(workflow == CgrailsConstants.WORKFLOW_TRADITIONAL) {
-			String layoutName = page.getProperty("meta.layout")		
-			
-			if (layoutName == null || StringUtils.isBlank(layoutName)) {
-				GroovyObject controller = (GroovyObject)request.getAttribute(GrailsApplicationAttributes.CONTROLLER);
-				if (controller) {
-					
-					String actionUri = (String)controller.getProperty(ControllerDynamicMethods.ACTION_URI_PROPERTY);
-					String controllerName = (String)controller
-										.getProperty(ControllerDynamicMethods.CONTROLLER_NAME_PROPERTY);
-					Object layoutProperty = GrailsClassUtils.getStaticPropertyValue(controller.getClass(), "layout");
-					if (layoutProperty != null && layoutProperty instanceof CharSequence) {
-						decorator = getNamedDecorator(request, layoutProperty.toString());
-					} else {					
-						if(!StringUtils.isBlank(actionUri)) {							
-							decorator = getCustomNamedDecorator(request, actionUri.substring(1));
-						} 
-						if (decorator == null && !StringUtils.isBlank(controllerName)) {
-							 decorator = getCustomNamedDecorator(request, controllerName);
-						}		
-						if (decorator == null) {
-							decorator = getCustomApplicationDefaultDecorator(request)
-						}
-					}					
-				} else {
-					decorator = getCustomApplicationDefaultDecorator(request)
+		String layoutName = page.getProperty("meta.layout")			
+		if (layoutName == null || StringUtils.isBlank(layoutName)) {
+			GroovyObject controller = (GroovyObject)request.getAttribute(GrailsApplicationAttributes.CONTROLLER);
+			if (controller) {
+				
+				String actionUri = (String)controller.getProperty(ControllerDynamicMethods.ACTION_URI_PROPERTY);
+				String controllerName = (String)controller
+									.getProperty(ControllerDynamicMethods.CONTROLLER_NAME_PROPERTY);
+				Object layoutProperty = GrailsClassUtils.getStaticPropertyValue(controller.getClass(), "layout");
+				if (layoutProperty != null && layoutProperty instanceof CharSequence) {
+					decorator = getNamedDecorator(request, layoutProperty.toString());
+				} else {					
+					if(!StringUtils.isBlank(actionUri)) {							
+						decorator = getCustomNamedDecorator(request, actionUri.substring(1));
+					} 
+					if (decorator == null && !StringUtils.isBlank(controllerName)) {
+						 decorator = getCustomNamedDecorator(request, controllerName);
+					}		
+					if (decorator == null) {
+						decorator = getCustomApplicationDefaultDecorator(request)
+					}
 				}					
 			} else {
-				decorator = getNamedDecorator(request,layoutName)
-			}			
-			
+				decorator = getCustomApplicationDefaultDecorator(request)
+			}					
 		} else {
-			decorator = new GrailsNoDecorator();
-		}
+			decorator = getNamedDecorator(request,layoutName)
+		}			
+			
 		return decorator
 	}
 
