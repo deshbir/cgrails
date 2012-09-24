@@ -2,7 +2,7 @@
 <!DOCTYPE html>
 <html>
 	<head>
-	    <title>Cgrails Hello world</title>
+	   <title>Cgrails Sample Application</title>
 	    <cgrails:stylesheet src="styles" watch="false"/>
 	    <r:require modules="cgrailsLibs,module2"/>	
 	    <g:render template="/initialize" plugin="cgrails"/>

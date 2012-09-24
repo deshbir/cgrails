@@ -78,7 +78,6 @@ Brief summary/description of the plugin.
 						def resource = grailsAttributes.getPagesTemplateEngine().getResourceForUri(fullViewPath)
 						// if view does not exist in current skin , fall back to parent skin
 						while (!resource.exists() && (currentSkin != cgrailsConfig.cgrails.skinning.baseskin)) {
-							System.out.println(currentSkin);
 							def parentSkin = cgrailsConfig.cgrails.skinning.skins."${currentSkin}".parent
 							fullViewPath = fullViewPath.replaceFirst(currentSkin, parentSkin)
 							resource = grailsAttributes.getPagesTemplateEngine().getResourceForUri(fullViewPath)

@@ -9,4 +9,9 @@ cgrails {
 		//Array of Less Files to compile.
 		files = ["styles"]
 	}	
+	templates {
+		url = "/main/template/"
+		useConfiguration = false
+	}
+	javascriptMVC = "backbone"
 }
