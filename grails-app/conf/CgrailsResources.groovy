@@ -12,12 +12,5 @@ modules = {
 		resource url: [plugin: 'cgrails', dir: 'js/offline', file:'preloaded_model.js']
 		resource url: [plugin: 'cgrails', dir: 'js/offline', file:'preloaded_templates.js']
 	}
-	module1 {
-		dependsOn 'cgrailsLibs'
-		resource url: [dir: 'js/cgrails/view1', file:'view1.js']
-	}
-	module2 {
-		dependsOn 'cgrailsLibs'
-		resource url: [dir: 'js/cgrails/view2', file:'view2.js']
-	}
+	
 }

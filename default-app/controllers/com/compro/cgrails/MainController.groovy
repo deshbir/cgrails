@@ -1,4 +1,4 @@
-package com.cgrails
+package com.compro.cgrails
 
 import com.compro.cgrails.CgrailsConstants
 import com.compro.cgrails.CgrailsUtils
@@ -11,14 +11,7 @@ class MainController {
 		} else {
 			render (view:"/singlepage", model:[:])
 		}
-	}
-	def singlepage() {
-		render (view:"/singlepage", model:[:])
-	}
-	
-	def traditional() {
-		render (view:"/singlepage", model:[:])
-	}
+	}	
 	
 	def menu1() {
 		render (view:"page1",model:[:])

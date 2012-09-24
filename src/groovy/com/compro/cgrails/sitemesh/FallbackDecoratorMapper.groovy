@@ -2,6 +2,8 @@
 
 package  com.compro.cgrails.sitemesh 
 
+import grails.util.GrailsUtil
+
 import javax.servlet.ServletContext
 import javax.servlet.http.HttpServletRequest
 
@@ -16,7 +18,6 @@ import org.codehaus.groovy.grails.web.sitemesh.GroovyPageLayoutFinder
 import org.springframework.web.context.WebApplicationContext
 import org.springframework.web.context.support.WebApplicationContextUtils
 
-import com.compro.cgrails.CgrailsConstants
 import com.compro.cgrails.CgrailsUtils
 import com.opensymphony.module.sitemesh.Config
 import com.opensymphony.module.sitemesh.Decorator
@@ -86,9 +87,12 @@ class FallbackDecoratorMapper extends  GrailsLayoutDecoratorMapper{
 		def fulllayoutPath = currentSkin  + "/" + name
 		def decorator = groovyPageLayoutFinder.getNamedDecorator(request,fulllayoutPath)
 		
+		def classLoader = Thread.currentThread().contextClassLoader
+		def cgrailsConfig = new ConfigSlurper(GrailsUtil.environment).parse(classLoader.loadClass('CgrailsConfig'))
+		
 		//falls back to parent
-		while (decorator == null && (currentSkin != grailsApplication.config.cgrails.skinning.baseskin)) {
-			def parentSkin = grailsApplication.config.cgrails.skinning.skins."${currentSkin}".parent
+		while (decorator == null && (currentSkin != cgrailsConfig.cgrails.skinning.baseskin)) {
+			def parentSkin = cgrailsConfig.cgrails.skinning.skins."${currentSkin}".parent
 			fulllayoutPath = fulllayoutPath.replaceFirst(currentSkin, parentSkin)
 			decorator = groovyPageLayoutFinder.getNamedDecorator(request,fulllayoutPath)
 			currentSkin = parentSkin
@@ -97,7 +101,10 @@ class FallbackDecoratorMapper extends  GrailsLayoutDecoratorMapper{
 	}
 	
 	private Decorator getCustomApplicationDefaultDecorator(HttpServletRequest request) {
-		def layoutNameConfig = grailsApplication.config.grails.sitemesh?.default?.layout
+		def classLoader = Thread.currentThread().contextClassLoader
+		def cgrailsConfig = new ConfigSlurper(GrailsUtil.environment).parse(classLoader.loadClass('CgrailsConfig'))
+		
+		def layoutNameConfig = cgrailsConfig.grails.sitemesh?.default?.layout
 		String layoutName = layoutNameConfig ? layoutNameConfig : "application"	
 		Decorator decorator = getCustomNamedDecorator(request,layoutName)
 		if(decorator == null) {

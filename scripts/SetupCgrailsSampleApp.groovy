@@ -27,22 +27,23 @@ target(cgrailsDecoratorMapper: "Installs CgrailsDecoratorMapper for sitemesh in 
 target(createController: "Copies  MainController for sample skinning") {
 	depends(modifyConfig)
 	ant.echo("***********Copying  MainController for sample skinning.......")
-	ant.mkdir(dir: "grails-app/controllers/com/cgrails")
-	ant.copy ( todir : 'grails-app/controllers/com/cgrails' ,  file : "${cgrailsPluginDir}/default-app/controllers/MainController.groovy" )
+	ant.mkdir(dir: "grails-app/controllers/com/compro/cgrails")
+	ant.copy ( todir : 'grails-app/controllers/com/compro/cgrails' ,  file : "${cgrailsPluginDir}/default-app/controllers/com/compro/cgrails/MainController.groovy" )
 	ant.echo("***********Finished installing CgrailsDecoratorMapper for sitemesh********")
  }
 
-target(modifyConfig: "Copies CgrailsConfig.groovy for skinning") {
+target(modifyConfig: "Copies Required config files for skinning") {
 	depends(copyJS,copyViews)
 	ant.echo("***********Copying CgrailsConfig.groovy for skinning.......")	
-	ant.copy ( todir : 'grails-app/conf' ,  file : "${cgrailsPluginDir}/default-app/conf/CgrailsConfig.groovy" )
+	ant.copy(todir: "grails-app/conf") {
+		fileset(dir: "${cgrailsPluginDir}/default-app/conf")
+	}
  }
 
 
-target(copyJS: "Copies sampleJS for skinningg") {
+target(copyJS: "Copies sampleJS for skinning") {
 	ant.echo("***********Copying sampleJS......")
-	ant.mkdir(dir: "web-app/js/cgrails")
-	ant.copy(todir: "web-app/js/cgrails") {
+	ant.copy(todir: "web-app/js") {
 		fileset(dir: "${cgrailsPluginDir}/default-app/js")
 	}
  }

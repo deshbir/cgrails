@@ -2,6 +2,8 @@
 <!DOCTYPE html>
 <html>
 	<head>
+	    <title>Cgrails Hello world</title>
+	    <cgrails:stylesheet src="styles" watch="false"/>
 	    <r:require modules="cgrailsLibs,module1,module2"/>	
 	    <g:render template="/initialize" plugin="cgrails"/>
 	    <g:layoutHead/>
@@ -10,7 +12,7 @@
 	<body>
 		<g:include view="layout-helpers/header.gsp"/>
 		<div id="main_container" class="container">
-		 	<h2>Layout 1</h2>
+		 	<h2>Singlepage Layout</h2>
 			<g:layoutBody/>
 		</div>
 		<g:include view="layout-helpers/footer.gsp"/>

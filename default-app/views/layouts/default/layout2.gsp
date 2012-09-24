@@ -2,6 +2,8 @@
 <!DOCTYPE html>
 <html>
 	<head>
+	    <title>Cgrails Hello world</title>
+	    <cgrails:stylesheet src="styles" watch="false"/>
 	    <r:require modules="cgrailsLibs,module2"/>	
 	    <g:render template="/initialize" plugin="cgrails"/>
 	    <g:layoutHead/>
