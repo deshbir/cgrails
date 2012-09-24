@@ -29,8 +29,8 @@ class OfflineApplicationBuilder {
 	private static final String FONTS_DIR_NAME = "fonts"
 	private static final String CSS_DIR_NAME = "css"
 	private static final String INDEX_FILE_NAME = "index.html"	
-	private static final String CGRAILS_TEMPLATES_FILE_NAME = "CgrailsTemplates"
-	private static final String CGRAILS_MODELS_FILE_NAME = "CgrailsModels"
+	private static final String CGRAILS_TEMPLATES_FILE_NAME = "CgrailsConfig"
+	private static final String CGRAILS_MODELS_FILE_NAME = "CgrailsConfig"
 	private static final String TEMPLATES_FOLDER_NAME = "templates"	
 	private static final String PRELOADED_TEMPLATES_JS_PATH = "/offline/preloaded_templates.js"
 	private static final String PRELOADED_MODELS_JS_PATH = "/offline/preloaded_model.js"	
@@ -87,7 +87,7 @@ class OfflineApplicationBuilder {
 	
 	private void createPreloadedModel(String pluginVersion) {
 		def classLoader = Thread.currentThread().contextClassLoader
-		def config = new ConfigSlurper(GrailsUtil.environment).parse(classLoader.loadClass('Config'))
+		def config = new ConfigSlurper(GrailsUtil.environment).parse(classLoader.loadClass('CgrailsConfig'))
 		String javascriptmvc = config.cgrails.javascriptMVC
 		if(javascriptmvc == null || javascriptmvc == "backbone") {
 			createBacbonePreloadedModel(pluginVersion);
@@ -195,7 +195,7 @@ class OfflineApplicationBuilder {
 			} else {
 				String templatesPath = TEMPLATES_FOLDER_NAME + "\\"
 				String path = file.getPath();
-				path = path.substring(path.indexOf(templatesPath));
+				path = path.substring(path.indexOf(templatesPath) + templatesPath.length());
 				path = path.substring(0, path.indexOf(".gsp"));
 				path = path.replace("\\", "/");
 				fileList.add(path);
@@ -206,7 +206,7 @@ class OfflineApplicationBuilder {
 	
 	public void createPreloaderTemplate(String skin, String pluginVersion) {
 		def classLoader = Thread.currentThread().contextClassLoader
-		def config = new ConfigSlurper(GrailsUtil.environment).parse(classLoader.loadClass('Config'))
+		def config = new ConfigSlurper(GrailsUtil.environment).parse(classLoader.loadClass('CgrailsConfig'))
 		Boolean isConfigurable = config.cgrails.templates.useConfiguration
 		String templateApiURL =  config.cgrails.templates.url
 		Set<String> templateList
@@ -222,10 +222,9 @@ class OfflineApplicationBuilder {
 			def urlBuilder = new StringBuilder("http://");
 			urlBuilder.append(APP_HOST).append(":").append(APP_PORT).append("/").append(grailsApplication.metadata['app.name']);
 			urlBuilder.append("/").append(skin).append("/").append(CgrailsConstants.WORKFLOW_OFFLINE)
-				.append(templateApiURL).append("?path=").append("/").append(templatename).append("&_offlineMode=y");
+				.append(templateApiURL).append("?path=").append(TEMPLATES_FOLDER_NAME).append("/").append(templatename).append("&_offlineMode=y");
 			template = getHTML(urlBuilder.toString())
 			template = template.replace("\r\n", "").replace("\t", "");
-			templatename = templatename.substring(TEMPLATES_FOLDER_NAME.length() + 1, templatename.length())
 			jsonTemplate.put(templatename, template);
 		}
 		String contentString = "com.compro.cgrails.OfflineTemplates = " + jsonTemplate.toString(8);

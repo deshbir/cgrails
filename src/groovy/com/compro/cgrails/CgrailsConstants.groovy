@@ -1,6 +1,5 @@
 package com.compro.cgrails
 
-import java.util.List;
 
 class CgrailsConstants {
 	public static final String LESS_SCRIPT_FILE_LOCATION = "js/lesscompiler/less.js"

@@ -7,7 +7,7 @@ includeTargets << grailsScript("_GrailsInit")
 	def classLoader = Thread.currentThread().contextClassLoader
 	classLoader.addURL(new File(classesDirPath).toURI().toURL())
 	def Constants = Class.forName(className, true, classLoader).newInstance()
-	def config = new ConfigSlurper(GrailsUtil.environment).parse(classLoader.loadClass('Config'))
+	def config = new ConfigSlurper(GrailsUtil.environment).parse(classLoader.loadClass('CgrailsConfig'))
 
 	ant.project.getBuildListeners().each{
 		if(it.metaClass.respondsTo(it, "setMessageOutputLevel")){

@@ -1,0 +1,1 @@
+<div>This is template 2 of Skin1.</div>

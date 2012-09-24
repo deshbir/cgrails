@@ -1,5 +1,7 @@
 package com.compro.cgrails.service
 
+import grails.util.GrailsUtil
+
 import org.springframework.web.context.request.RequestContextHolder
 
 
@@ -10,15 +12,17 @@ public class DefaultCgrailsServiceImpl implements CgrailsService {
 	public String getSkin() {
 		HashMap<?,?> paramsMap = RequestContextHolder.currentRequestAttributes().params
 		String skin = paramsMap["skin"]
+		def classLoader = Thread.currentThread().contextClassLoader
+		def cgrailsConfig = new ConfigSlurper(GrailsUtil.environment).parse(classLoader.loadClass('CgrailsConfig'))
 		if(skin != null) {
-			if ((!grailsApplication.config.cgrails.skinning.skins."${skin}")
-				|| (!grailsApplication.config.cgrails.skinning.skins."${skin}".parent)){
-				return grailsApplication.config.cgrails.skinning.baseskin
+			if ((!cgrailsConfig.cgrails.skinning.skins."${skin}")
+				|| (!cgrailsConfig.cgrails.skinning.skins."${skin}".parent)){
+				return cgrailsConfig.cgrails.skinning.baseskin
 			} else {
 				return skin
 			}
 		} else {
-			return grailsApplication.config.cgrails.skinning.baseskin
+			return cgrailsConfig.cgrails.skinning.baseskin
 		}
 	}
 	

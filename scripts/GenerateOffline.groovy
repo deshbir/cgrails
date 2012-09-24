@@ -12,7 +12,7 @@ includeTargets << new File("${cgrailsPluginDir}/scripts/DeployCss.groovy")
 
 def classLoader = Thread.currentThread().contextClassLoader
 classLoader.addURL(new File(classesDirPath).toURI().toURL())
-def config = new ConfigSlurper(GrailsUtil.environment).parse(classLoader.loadClass('Config'))
+def config = new ConfigSlurper(GrailsUtil.environment).parse(classLoader.loadClass('CgrailsConfig'))
 
 
 target(run: "Runs the application") {
