@@ -29,8 +29,7 @@ class OfflineApplicationBuilder {
 	private static final String FONTS_DIR_NAME = "fonts"
 	private static final String CSS_DIR_NAME = "css"
 	private static final String INDEX_FILE_NAME = "index.html"	
-	private static final String CGRAILS_TEMPLATES_FILE_NAME = "CgrailsConfig"
-	private static final String CGRAILS_MODELS_FILE_NAME = "CgrailsConfig"
+	private static final String CGRAILS_CONFIG_FILE_NAME = "CgrailsConfig"
 	private static final String TEMPLATES_FOLDER_NAME = "templates"	
 	private static final String PRELOADED_TEMPLATES_JS_PATH = "/offline/preloaded_templates.js"
 	private static final String PRELOADED_MODELS_JS_PATH = "/offline/preloaded_model.js"	
@@ -87,7 +86,7 @@ class OfflineApplicationBuilder {
 	
 	private void createPreloadedModel(String pluginVersion) {
 		def classLoader = Thread.currentThread().contextClassLoader
-		def config = new ConfigSlurper(GrailsUtil.environment).parse(classLoader.loadClass('CgrailsConfig'))
+		def config = new ConfigSlurper(GrailsUtil.environment).parse(classLoader.loadClass(CGRAILS_CONFIG_FILE_NAME))
 		String javascriptmvc = config.cgrails.javascriptMVC
 		if(javascriptmvc == null || javascriptmvc == "backbone") {
 			createBacbonePreloadedModel(pluginVersion);
@@ -97,7 +96,7 @@ class OfflineApplicationBuilder {
 	private void createBacbonePreloadedModel(String pluginVersion) {
 		// Accessing CgrailsModel.groovy
 		def classLoader = Thread.currentThread().contextClassLoader
-		def modelsConf = new ConfigSlurper(GrailsUtil.environment).parse(classLoader.loadClass(CGRAILS_MODELS_FILE_NAME))
+		def modelsConf = new ConfigSlurper(GrailsUtil.environment).parse(classLoader.loadClass(CGRAILS_CONFIG_FILE_NAME))
 		
 		def cgrailsmodels =  modelsConf.cgrails.models.backbone		
 		def modelMainBuffer = new StringBuffer();
@@ -206,12 +205,12 @@ class OfflineApplicationBuilder {
 	
 	public void createPreloaderTemplate(String skin, String pluginVersion) {
 		def classLoader = Thread.currentThread().contextClassLoader
-		def config = new ConfigSlurper(GrailsUtil.environment).parse(classLoader.loadClass('CgrailsConfig'))
+		def config = new ConfigSlurper(GrailsUtil.environment).parse(classLoader.loadClass(CGRAILS_CONFIG_FILE_NAME))
 		Boolean isConfigurable = config.cgrails.templates.useConfiguration
 		String templateApiURL =  config.cgrails.templates.url
 		Set<String> templateList
 		if(isConfigurable) {
-			def offlineConf = new ConfigSlurper(GrailsUtil.environment).parse(classLoader.loadClass(CGRAILS_TEMPLATES_FILE_NAME))
+			def offlineConf = new ConfigSlurper(GrailsUtil.environment).parse(classLoader.loadClass(CGRAILS_CONFIG_FILE_NAME))
 			templateList = new HashSet(offlineConf.cgrails.templates);
 		} else {
 			templateList = getRequiredTemplates(skin, config);
