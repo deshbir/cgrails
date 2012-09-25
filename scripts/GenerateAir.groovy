@@ -14,8 +14,12 @@ target(air: "Generates Offline AIR version of the application") {
    def airApplicationBuilder = applicationContext.getBean("airApplicationBuilder");
    ant.echo("Cleaning older AIR package......");
    airApplicationBuilder.deleteOldPackage();
+   ant.echo("Successfully Cleaned older AIR package.");
+   ant.echo("Creating AIR package......");
    airApplicationBuilder.generateAir("${cgrailsPluginDir}")
+   ant.echo("Successfully created AIR package.");
    ant.echo("***********AIR offline version successfully generated***************");
+   ant.echo("****************************************************************************");
    
 }
 

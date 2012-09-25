@@ -16,7 +16,6 @@ includeTargets << grailsScript("_GrailsInit")
 	}
 
 	target(deployCSS:"Deploys CSS files") {	
-		ant.echo("****************************************************************************");
 		ant.echo("*********** Started deploying CSS.***********");
 		if (!config.cgrails?.skinning){
 			ant.echo("********ERROR*************");
@@ -33,7 +32,7 @@ includeTargets << grailsScript("_GrailsInit")
 		ant.echo("****************************************************************************");
 	}
 	
-	target(compileLESS:"Compile LESS into CSS"){
+	target(compileLESS:"Compiles LESS into CSS"){
 		ant.echo("Compiling LESS into CSS..........")
 		if(argsMap.skin){
 			runCompileLess(argsMap.skin,Constants,config)
@@ -46,6 +45,7 @@ includeTargets << grailsScript("_GrailsInit")
 			}
 			
 		}
+		ant.echo("Successfully Compiled LESS into CSS.")
 		
 	}
 	
@@ -62,6 +62,7 @@ includeTargets << grailsScript("_GrailsInit")
 				runRTLCompileLess(skinname,Constants,config)
 			}
 		}
+		ant.echo("Successfully generated RTL CSS.")
 		
 	}
 
