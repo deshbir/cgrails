@@ -1,0 +1,5 @@
+cgrails {
+	less {
+		deploycss = false
+	}
+}

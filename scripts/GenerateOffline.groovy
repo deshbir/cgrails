@@ -10,10 +10,6 @@ includeTargets << grailsScript("_GrailsRun")
 
 includeTargets << new File("${cgrailsPluginDir}/scripts/DeployCss.groovy")
 
-def classLoader = Thread.currentThread().contextClassLoader
-classLoader.addURL(new File(classesDirPath).toURI().toURL())
-def config = new ConfigSlurper(GrailsUtil.environment).parse(classLoader.loadClass('CgrailsConfig'))
-
 
 target(run: "Runs the application") {
 	depends(checkVersion, configureProxy, packageApp, parseArguments)
@@ -22,6 +18,19 @@ target(run: "Runs the application") {
 }
 
 target(generate: "Generates Offline version of the application") {
+	
+	def classLoader = Thread.currentThread().contextClassLoader
+	classLoader.addURL(new File(classesDirPath).toURI().toURL())
+	def config
+	try {
+		config = new ConfigSlurper(GrailsUtil.environment).parse(classLoader.loadClass('CgrailsConfig'))
+	} catch (ClassNotFoundException e) {
+		ant.echo("********ERROR*************");
+		ant.echo("Cgrails configuration file not found. Please add CgrailsConfig.groovy file.");
+		exit(1)
+		
+	}		
+	
 	String skin;
 	if(argsMap.skin) {
 		skin = argsMap.skin
@@ -29,11 +38,17 @@ target(generate: "Generates Offline version of the application") {
 			ant.echo("********ERROR*************");
 			ant.echo("Invalid Skin: " + skin + ". Please define skin in cgrails skinning configuration.");
 			ant.echo("**************************");
-			return
+			exit(1)
 		}
 	} else {
 		skin = config.cgrails.skinning.baseskin
 		argsMap.skin = skin
+	}
+	
+	if (!config.cgrails?.templates?.url){
+		ant.echo("********ERROR*************");
+		ant.echo("Templates URL configuration(cgrails.templates.url) not found. Please define the template URL.");
+		exit(1)
 	}
 	
 	
