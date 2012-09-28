@@ -3,7 +3,7 @@
 <html>
 	<head>
 	   <title>Cgrails Sample Application</title>
-	    <cgrails:stylesheet src="styles" watch="false"/>
+	    <cgrails:stylesheet src="styles" rtlsupport="true"/>
 	    <r:require modules="cgrailsLibs,module1"/>	
 	    <g:render template="/initialize" plugin="cgrails"/>
 	    <g:layoutHead/>
