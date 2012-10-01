@@ -66,21 +66,20 @@ Brief summary/description of the plugin.
 		 */
 		application.controllerClasses.each { controller ->
 			  def original = controller.metaClass.getMetaMethod("render", [Map] as Class[])
-			  SkinningFallbackService skinningFallbackService = ctx.getBean("skinningFallbackService")
+			  def skinningService = ctx.getBean("skinningService")
 			  controller.metaClass.render = { Map args ->
 					String baseDir = "/pages/"
+					def currentSkin = CgrailsUtils.getSkin()
 					if(args.view) {
-						def currentSkin = CgrailsUtils.getSkin()
 						def viewPath = baseDir + currentSkin + "/" + args.view
 						def fullViewPath= grailsAttributes.getViewUri(viewPath,request)
-						currentSkin = skinningFallbackService.getResourceFallbackSkin(fullViewPath,currentSkin)
+						currentSkin = skinningService.getResourceFallbackSkin(fullViewPath,currentSkin)
 						args.view = baseDir + currentSkin + "/" + args.view
 					}
 					else if(args.template) {
-						def currentSkin = CgrailsUtils.getSkin()
 						def templatePath = baseDir + currentSkin + args.template
 						def fullTemplatePath= grailsAttributes.getTemplateUri(templatePath,request)
-						currentSkin = skinningFallbackService.getResourceFallbackSkin(fullTemplatePath,currentSkin)
+						currentSkin = skinningService.getResourceFallbackSkin(fullTemplatePath,currentSkin)
 						args.template = baseDir + currentSkin + "/" + args.template
 					}
 					original.invoke(delegate, args)

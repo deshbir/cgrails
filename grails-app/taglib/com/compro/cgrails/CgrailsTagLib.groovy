@@ -1,17 +1,15 @@
 package com.compro.cgrails
-import grails.util.GrailsUtil
-
 import org.codehaus.groovy.grails.commons.GrailsApplication
 
-import com.compro.cgrails.service.SkinningFallbackService
+import com.compro.cgrails.service.SkinningService
 
 class CgrailsTagLib {
 	
 	static namespace = "cgrails"
-	GrailsApplication grailsApplication	
-	SkinningFallbackService skinningFallbackService
+	GrailsApplication grailsApplication
+	SkinningService skinningService
 	
-	def stylesheet = { attrs, body ->		
+	def stylesheet = { attrs, body ->
 		if(attrs.rtlsupport.equals('false')){
 			getLTRStyleSheet(attrs)
 		} else {
@@ -43,7 +41,7 @@ class CgrailsTagLib {
 			fileType = '.css'
 		}
 		String filePath = "${dir}/${src}${fileType}"
-		def fallbackSkin = skinningFallbackService.getResourceFallbackSkin(filePath,currentSkin)
+		def fallbackSkin = skinningService.getResourceFallbackSkin(filePath,currentSkin)
 		filePath = filePath.replaceFirst(currentSkin, fallbackSkin)
 		if (isDebugMode() && (CgrailsUtils.getWorkflow() != CgrailsConstants.WORKFLOW_OFFLINE)) {
 			String appName = grailsApplication.metadata['app.name']
@@ -72,7 +70,7 @@ class CgrailsTagLib {
 		String currentSkin = CgrailsUtils.getSkin()
 		String dir = "${CgrailsConstants.CGRAILS_CSS_PATH}/${currentSkin}"
 		String filePath = "${dir}/${src}${fileType}"
-		def fallbackSkin = skinningFallbackService.getResourceFallbackSkin(filePath,currentSkin)
+		def fallbackSkin = skinningService.getResourceFallbackSkin(filePath,currentSkin)
 		filePath = filePath.replaceFirst(currentSkin, fallbackSkin)
 		out << r.external(uri : "/" + filePath)
 		return
