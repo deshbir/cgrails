@@ -1,6 +1,5 @@
-import grails.util.GrailsUtil
-
 import com.compro.cgrails.CgrailsUtils
+import com.compro.cgrails.service.SkinningFallbackService
 
 
 class CgrailsGrailsPlugin {
@@ -67,36 +66,21 @@ Brief summary/description of the plugin.
 		 */
 		application.controllerClasses.each { controller ->
 			  def original = controller.metaClass.getMetaMethod("render", [Map] as Class[])
+			  SkinningFallbackService skinningFallbackService = ctx.getBean("skinningFallbackService")
 			  controller.metaClass.render = { Map args ->
 					String baseDir = "/pages/"
-					def classLoader = Thread.currentThread().contextClassLoader
-					def cgrailsConfig = new ConfigSlurper(GrailsUtil.environment).parse(classLoader.loadClass('CgrailsConfig'))
 					if(args.view) {
 						def currentSkin = CgrailsUtils.getSkin()
 						def viewPath = baseDir + currentSkin + "/" + args.view
 						def fullViewPath= grailsAttributes.getViewUri(viewPath,request)
-						def resource = grailsAttributes.getPagesTemplateEngine().getResourceForUri(fullViewPath)
-						// if view does not exist in current skin , fall back to parent skin
-						while (!resource.exists() && (currentSkin != cgrailsConfig.cgrails.skinning.baseskin)) {
-							def parentSkin = cgrailsConfig.cgrails.skinning.skins."${currentSkin}".parent
-							fullViewPath = fullViewPath.replaceFirst(currentSkin, parentSkin)
-							resource = grailsAttributes.getPagesTemplateEngine().getResourceForUri(fullViewPath)
-							currentSkin = parentSkin
-						}
+						currentSkin = skinningFallbackService.getResourceFallbackSkin(fullViewPath,currentSkin)
 						args.view = baseDir + currentSkin + "/" + args.view
 					}
 					else if(args.template) {
 						def currentSkin = CgrailsUtils.getSkin()
 						def templatePath = baseDir + currentSkin + args.template
 						def fullTemplatePath= grailsAttributes.getTemplateUri(templatePath,request)
-						def resource = grailsAttributes.getPagesTemplateEngine().getResourceForUri(fullTemplatePath)
-						// if template does not exist in current skin , fall back to parent skin
-						while (!resource.exists() && (currentSkin != cgrailsConfig.cgrails.skinning.baseskin)) {
-							def parentSkin = cgrailsConfig.cgrails.skinning.skins."${currentSkin}".parent
-							fullTemplatePath = fullTemplatePath.replaceFirst(currentSkin, parentSkin)
-							resource = grailsAttributes.getPagesTemplateEngine().getResourceForUri(fullTemplatePath)
-							currentSkin = parentSkin
-						}
+						currentSkin = skinningFallbackService.getResourceFallbackSkin(fullTemplatePath,currentSkin)
 						args.template = baseDir + currentSkin + "/" + args.template
 					}
 					original.invoke(delegate, args)

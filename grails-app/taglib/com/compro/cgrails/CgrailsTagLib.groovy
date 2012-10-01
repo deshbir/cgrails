@@ -3,10 +3,13 @@ import grails.util.GrailsUtil
 
 import org.codehaus.groovy.grails.commons.GrailsApplication
 
+import com.compro.cgrails.service.SkinningFallbackService
+
 class CgrailsTagLib {
 	
 	static namespace = "cgrails"
 	GrailsApplication grailsApplication	
+	SkinningFallbackService skinningFallbackService
 	
 	def stylesheet = { attrs, body ->
 		def direction = CgrailsUtils.LEFT_TO_RIGHT
@@ -40,7 +43,8 @@ class CgrailsTagLib {
 			fileType = '.css'
 		}
 		String filePath = "${dir}/${src}${fileType}"
-		filePath = getSkinnedURI(filePath,currentSkin)
+		def fallbackSkin = skinningFallbackService.getResourceFallbackSkin(filePath,currentSkin)
+		filePath = filePath.replaceFirst(currentSkin, fallbackSkin)
 		if (isDebugMode() && (CgrailsUtils.getWorkflow() != CgrailsConstants.WORKFLOW_OFFLINE)) {
 			String appName = grailsApplication.metadata['app.name']
 			// reference .less files directly (In browser, less.js will compile into CSS)
@@ -68,24 +72,12 @@ class CgrailsTagLib {
 		String currentSkin = CgrailsUtils.getSkin()
 		String dir = "${CgrailsConstants.CGRAILS_CSS_PATH}/${currentSkin}"
 		String filePath = "${dir}/${src}${fileType}"
-		filePath = getSkinnedURI(filePath,currentSkin)
+		def fallbackSkin = skinningFallbackService.getResourceFallbackSkin(filePath,currentSkin)
+		filePath = filePath.replaceFirst(currentSkin, fallbackSkin)
 		out << r.external(uri : "/" + filePath)
 		return
 	}
 	
-	private String getSkinnedURI(String filePath, String currentSkin){
-		def classLoader = Thread.currentThread().contextClassLoader
-		def cgrailsConfig = new ConfigSlurper(GrailsUtil.environment).parse(classLoader.loadClass('CgrailsConfig'))
-		def resource =  grailsAttributes.getPagesTemplateEngine().getResourceForUri(filePath)
-		while (!resource.exists() && (currentSkin != cgrailsConfig.cgrails.skinning.baseskin)) {
-			def parentSkin = cgrailsConfig.cgrails.skinning.skins."${currentSkin}".parent
-			filePath = filePath.replaceFirst(currentSkin, parentSkin)
-			resource = grailsAttributes.getPagesTemplateEngine().getResourceForUri(filePath)
-			currentSkin = parentSkin
-		}
-		return filePath
-	}
-
 	private boolean isDebugMode() {
 		if(grailsApplication.config.grails.resources.debug){
 			return true
