@@ -11,12 +11,12 @@ class CgrailsTagLib {
 	GrailsApplication grailsApplication	
 	SkinningFallbackService skinningFallbackService
 	
-	def stylesheet = { attrs, body ->
-		def direction = CgrailsUtils.LEFT_TO_RIGHT
-		String locale  = session.'org.springframework.web.servlet.i18n.SessionLocaleResolver.LOCALE'
+	def stylesheet = { attrs, body ->		
 		if(attrs.rtlsupport.equals('false')){
 			getLTRStyleSheet(attrs)
 		} else {
+			def direction = CgrailsUtils.LEFT_TO_RIGHT
+			String locale  = session.'org.springframework.web.servlet.i18n.SessionLocaleResolver.LOCALE'
 			if(locale){
 				direction = CgrailsUtils.getOrientation(locale.toString())
 			}
