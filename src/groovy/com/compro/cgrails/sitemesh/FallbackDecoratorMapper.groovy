@@ -19,6 +19,7 @@ import org.springframework.web.context.WebApplicationContext
 import org.springframework.web.context.support.WebApplicationContextUtils
 
 import com.compro.cgrails.CgrailsUtils
+import com.compro.cgrails.service.SkinningService
 import com.opensymphony.module.sitemesh.Config
 import com.opensymphony.module.sitemesh.Decorator
 import com.opensymphony.module.sitemesh.DecoratorMapper
@@ -26,7 +27,7 @@ import com.opensymphony.module.sitemesh.Page
 
 class FallbackDecoratorMapper extends  GrailsLayoutDecoratorMapper{	
 	
-	private GroovyPageLayoutFinder groovyPageLayoutFinder;	
+	private SkinningService skinningService;	
 	def grailsApplication
 	@Override
 	public void init(Config c, Properties properties, DecoratorMapper parentMapper) throws InstantiationException {
@@ -36,7 +37,7 @@ class FallbackDecoratorMapper extends  GrailsLayoutDecoratorMapper{
 		ServletContext servletContext = c.getServletContext();
 		WebApplicationContext applicationContext = WebApplicationContextUtils.getRequiredWebApplicationContext(servletContext);
 		grailsApplication = applicationContext.getBean("grailsApplication", DefaultGrailsApplication.class);
-		groovyPageLayoutFinder = applicationContext.getBean("groovyPageLayoutFinder", GroovyPageLayoutFinder.class);
+		skinningService = applicationContext.getBean("skinningService", SkinningService.class);
 	}
 	
 	
@@ -83,27 +84,14 @@ class FallbackDecoratorMapper extends  GrailsLayoutDecoratorMapper{
 	
 	private Decorator getCustomNamedDecorator (HttpServletRequest request, String name) {
 		def currentSkin = CgrailsUtils.getSkin()
-		
 		def fulllayoutPath = currentSkin  + "/" + name
-		def decorator = groovyPageLayoutFinder.getNamedDecorator(request,fulllayoutPath)
-		
-		def classLoader = Thread.currentThread().contextClassLoader
-		def cgrailsConfig = new ConfigSlurper(GrailsUtil.environment).parse(classLoader.loadClass('CgrailsConfig'))
-		
-		//falls back to parent
-		while (decorator == null && (currentSkin != cgrailsConfig.cgrails.skinning.baseskin)) {
-			def parentSkin = cgrailsConfig.cgrails.skinning.skins."${currentSkin}".parent
-			fulllayoutPath = fulllayoutPath.replaceFirst(currentSkin, parentSkin)
-			decorator = groovyPageLayoutFinder.getNamedDecorator(request,fulllayoutPath)
-			currentSkin = parentSkin
-		}
+		def decorator = skinningService.getSkinnedDecorator(request, currentSkin, fulllayoutPath)
 		return decorator;
 	}
 	
 	private Decorator getCustomApplicationDefaultDecorator(HttpServletRequest request) {
 		def classLoader = Thread.currentThread().contextClassLoader
 		def cgrailsConfig = new ConfigSlurper(GrailsUtil.environment).parse(classLoader.loadClass('CgrailsConfig'))
-		
 		def layoutNameConfig = cgrailsConfig.grails.sitemesh?.default?.layout
 		String layoutName = layoutNameConfig ? layoutNameConfig : "application"	
 		Decorator decorator = getCustomNamedDecorator(request,layoutName)

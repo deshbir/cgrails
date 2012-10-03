@@ -19,7 +19,7 @@ class OverrideGrailsTagLib {
 			def viewPath = "/pages/" + currentSkin + "/" + attrs.view
 			def fullViewPath= grailsAttributes.getViewUri(viewPath,request)
 			fullViewPath = fullViewPath.replaceAll(".gsp.gsp", ".gsp")
-			currentSkin = skinningService.getResourceFallbackSkin(fullViewPath,currentSkin)
+			currentSkin = skinningService.getCalculatedSkinForResource(fullViewPath,currentSkin)
 			attrs.view = "/pages/" + currentSkin + "/" + attrs.view
 		}
 		def renderTagLib = grailsApplication.mainContext.getBean('org.codehaus.groovy.grails.plugins.web.taglib.RenderTagLib')

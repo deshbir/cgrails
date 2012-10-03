@@ -1,5 +1,4 @@
 import com.compro.cgrails.CgrailsUtils
-import com.compro.cgrails.service.SkinningFallbackService
 
 
 class CgrailsGrailsPlugin {
@@ -73,13 +72,13 @@ Brief summary/description of the plugin.
 					if(args.view) {
 						def viewPath = baseDir + currentSkin + "/" + args.view
 						def fullViewPath= grailsAttributes.getViewUri(viewPath,request)
-						currentSkin = skinningService.getResourceFallbackSkin(fullViewPath,currentSkin)
+						currentSkin = skinningService.getCalculatedSkinForResource(fullViewPath,currentSkin)
 						args.view = baseDir + currentSkin + "/" + args.view
 					}
 					else if(args.template) {
 						def templatePath = baseDir + currentSkin + args.template
 						def fullTemplatePath= grailsAttributes.getTemplateUri(templatePath,request)
-						currentSkin = skinningService.getResourceFallbackSkin(fullTemplatePath,currentSkin)
+						currentSkin = skinningService.getCalculatedSkinForResource(fullTemplatePath,currentSkin)
 						args.template = baseDir + currentSkin + "/" + args.template
 					}
 					original.invoke(delegate, args)
