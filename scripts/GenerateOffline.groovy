@@ -21,16 +21,7 @@ target(generate: "Generates Offline version of the application") {
 	
 	def classLoader = Thread.currentThread().contextClassLoader
 	classLoader.addURL(new File(classesDirPath).toURI().toURL())
-	def config
-	try {
-		config = new ConfigSlurper(GrailsUtil.environment).parse(classLoader.loadClass('CgrailsConfig'))
-	} catch (ClassNotFoundException e) {
-		ant.echo("********ERROR*************");
-		ant.echo("Cgrails configuration file not found. Please add CgrailsConfig.groovy file.");
-		exit(1)
-		
-	}		
-	
+	def config = new ConfigSlurper(GrailsUtil.environment).parse(classLoader.loadClass('CgrailsConfig'))
 	String skin;
 	if(argsMap.skin) {
 		skin = argsMap.skin
