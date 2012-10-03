@@ -1,5 +1,4 @@
 import com.compro.cgrails.CgrailsUtils
-import com.compro.cgrails.service.SkinningFallbackService
 
 
 class CgrailsGrailsPlugin {
