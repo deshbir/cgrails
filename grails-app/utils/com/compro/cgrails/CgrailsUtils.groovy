@@ -27,12 +27,18 @@ class CgrailsUtils {
 		return cgrailsService.getWorkflow();
 	}
 	
-	def static getOrientation(String lang) {
-		if (RTL_LANGUAGES.contains(lang)) {
-			RIGHT_TO_LEFT;
-		} else {
-			LEFT_TO_RIGHT;
-		}
+	def static getOrientation() {
+		//getting the orientation set in the session
+		def session = RequestContextHolder.currentRequestAttributes().getSession()
+		String locale  = session.'org.springframework.web.servlet.i18n.SessionLocaleResolver.LOCALE'
+		if(locale){
+			if (RTL_LANGUAGES.contains(locale)) {
+				RIGHT_TO_LEFT;
+			} else {
+				LEFT_TO_RIGHT;
+			}
+		} else
+			LEFT_TO_RIGHT
 	}
 	
 }

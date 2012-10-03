@@ -13,11 +13,7 @@ class CgrailsTagLib {
 		if(attrs.rtlsupport.equals('false')){
 			getLTRStyleSheet(attrs)
 		} else {
-			def direction = CgrailsUtils.LEFT_TO_RIGHT
-			String locale  = session.'org.springframework.web.servlet.i18n.SessionLocaleResolver.LOCALE'
-			if(locale){
-				direction = CgrailsUtils.getOrientation(locale.toString())
-			}
+			def direction = CgrailsUtils.getOrientation()
 			if(direction == CgrailsUtils.LEFT_TO_RIGHT){
 				getLTRStyleSheet(attrs)
 			} else {
