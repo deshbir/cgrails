@@ -20,15 +20,15 @@ target(validateApp:"Validates Application For Configuration Errors") {
 		ant.echo("********ERROR*************");
 		ant.echo("Cgrails Skinning configuration not found.");
 		exit(1)
-	} else if (!config.cgrails?.less){
-		ant.echo("********ERROR*************");
-		ant.echo("Cgrails LESS configuration not found.");
-		exit(1)
 	} else if(!config.cgrails.skinning.baseskin) {
 	    ant.echo("********ERROR*************");
 		ant.echo("Application base skin (cgrails.skinning.baseskin) configuration not found.")
 		exit(1)
-	}		
+	} else if (!config.cgrails?.less){
+		ant.echo("********ERROR*************");
+		ant.echo("Cgrails LESS configuration not found.");
+		exit(1)
+	} 
 	
 }
 setDefaultTarget(validateApp)
