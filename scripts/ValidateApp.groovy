@@ -14,8 +14,7 @@ target(validateApp:"Validates Application For Configuration Errors") {
 	} catch (Exception e) {
 		ant.echo("********ERROR*************");
 		ant.echo("Cgrails configuration file not found. Please add CgrailsConfig.groovy file.");
-		return
-		
+		exit(1)		
 	}
 	if (!config.cgrails?.skinning){
 		ant.echo("********ERROR*************");

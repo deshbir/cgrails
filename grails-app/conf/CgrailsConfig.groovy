@@ -1,3 +1,0 @@
-cgrails {
-	run=false
-}
