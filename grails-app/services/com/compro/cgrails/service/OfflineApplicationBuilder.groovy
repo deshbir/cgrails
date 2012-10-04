@@ -94,30 +94,40 @@ class OfflineApplicationBuilder {
 	}
 	
 	private void createBacbonePreloadedModel(String pluginVersion) {
-		// Accessing CgrailsModel.groovy
-		def classLoader = Thread.currentThread().contextClassLoader
-		def modelsConf = new ConfigSlurper(GrailsUtil.environment).parse(classLoader.loadClass(CGRAILS_CONFIG_FILE_NAME))
 		
-		def cgrailsmodels =  modelsConf.cgrails.models.backbone		
 		def modelMainBuffer = new StringBuffer();
 		def modelDataBuffer = new StringBuffer();
 		def modelLoaderBuffer = new StringBuffer();
 		
 		modelMainBuffer.append("com.compro.cgrails.PreloadedModel = new function () {").append("\n");
 		
-		cgrailsmodels.each {model->
-			//Access domain class
-			String modelClassName = model.key
-			Class domainClass = grailsApplication.getDomainClass(modelClassName).clazz
-			JSON json = domainClass.initialData()
-			String backboneObject = model.value.backboneObject
+		grailsApplication.domainClasses.each {model->
+			Class domainClass = model.clazz
+			String modelClassName = domainClass.getName()
+			String backboneObject, backboneType
+			JSON initialJsonData
+			try {
+				backboneObject = domainClass.backboneObject
+			} catch (MissingPropertyException e) {
+				//Do nothing continue the loop
+			}
+			try {	
+				backboneType = domainClass.backboneType
+			} catch (MissingPropertyException e) {
+				//Do nothing continue the loop
+			}
+			try {				
+				initialJsonData = domainClass.initialData()
+			} catch (MissingMethodException e) {
+				//Do nothing continue the loop
+			}	
 			String dataString = modelClassName.substring(modelClassName.lastIndexOf(".") + 1, modelClassName.length()).toLowerCase() + "Data"
-			modelDataBuffer.append("var ").append(dataString).append(" = ").append(json);
+			modelDataBuffer.append("var ").append(dataString).append(" = ").append(initialJsonData);
 			
-			if(model.value.type == "model") {
+			if(backboneType == "model") {
 				modelDataBuffer.append(";").append("\n");
 				modelLoaderBuffer.append(backboneObject).append(".get().save(").append(dataString).append(")").append("\n");
-			} else if (model.value.type == "collection") {
+			} else if (backboneType == "collection") {
 				modelDataBuffer.append("\n");
 				modelLoaderBuffer.append("for (var i=0; i<").append(dataString).append(".length;i++) {").append("\n");
 				modelLoaderBuffer.append(backboneObject).append(".get().create(").append(dataString).append("[i])").append("\n");
