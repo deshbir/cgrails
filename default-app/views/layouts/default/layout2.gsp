@@ -5,7 +5,7 @@
 	   <title>Cgrails Sample Application</title>
 	    <cgrails:stylesheet src="styles"/>
 	    <r:require modules="cgrailsLibs,module2"/>	
-	    <g:render template="/setupCgrailsEnvironment" plugin="cgrails"/>
+	    <cgrails:environment_setup/>
 	    <g:layoutHead/>
 		<r:layoutResources/>		
 	</head>

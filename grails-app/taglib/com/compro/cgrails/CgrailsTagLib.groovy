@@ -21,6 +21,17 @@ class CgrailsTagLib {
 			}
 		}
 	}
+	
+	/**
+	 * This tag sets up environment for Cgrails.
+	 * The tag actually inlcudes "views/_setupCgrailsEnvironment.gsp" template inside the GSP.
+	 * This template contains the required code to setup Cgrails environment. 
+	 */
+	def environment_setup = { attrs, body ->
+		// renders the setupCgrailsEnvironment template
+		out << g.render(template : "/setupCgrailsEnvironment", plugin : "cgrails")		
+	}
+	
 	private void getLTRStyleSheet(def attrs){
 		String fileType
 		String currentSkin = CgrailsUtils.getSkin()
