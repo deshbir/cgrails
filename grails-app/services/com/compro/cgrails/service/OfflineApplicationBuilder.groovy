@@ -101,25 +101,34 @@ class OfflineApplicationBuilder {
 		
 		modelMainBuffer.append("com.compro.cgrails.PreloadedModel = new function () {").append("\n");
 		
-		grailsApplication.domainClasses.each {model->
-			Class domainClass = model.clazz
-			String modelClassName = domainClass.getName()
+		//Get all domain classes of application.
+		def domainClasses = grailsApplication.domainClasses
+		for (def domainClass:domainClasses) {
+			Class domain = domainClass.clazz
+			//getting class name.
+			String modelClassName = domain.getName()
 			String backboneObject, backboneType
 			JSON initialJsonData
 			try {
-				backboneObject = domainClass.backboneObject
+				// getting backboneObject property
+				backboneObject = domain.backboneObject
 			} catch (MissingPropertyException e) {
-				//Do nothing continue the loop
-			}
+			    // If backboneObject property not found, do nothing. Continue to next item
+				continue
+			}			
 			try {	
-				backboneType = domainClass.backboneType
+				// getting backboneType property
+				backboneType = domain.backboneType
 			} catch (MissingPropertyException e) {
-				//Do nothing continue the loop
+				// If backboneType property not found, do nothing. Continue to next item
+				continue
 			}
-			try {				
-				initialJsonData = domainClass.initialData()
+			try {
+				// call initialData function to get pre-loaded data.
+				initialJsonData = domain.initialData()
 			} catch (MissingMethodException e) {
-				//Do nothing continue the loop
+				// If initialData function not found, do nothing. Continue to next item
+				continue
 			}	
 			String dataString = modelClassName.substring(modelClassName.lastIndexOf(".") + 1, modelClassName.length()).toLowerCase() + "Data"
 			modelDataBuffer.append("var ").append(dataString).append(" = ").append(initialJsonData);
