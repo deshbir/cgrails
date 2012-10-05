@@ -20,7 +20,4 @@ class MainController {
 	def menu2() {
 		render (view:"page2",model:[:])
 	}
-	def template() {
-		render (view:"/"+ params.path,model:[:])
-	}
 }

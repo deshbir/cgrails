@@ -34,13 +34,7 @@ target(generate: "Generates Offline version of the application") {
 	} else {
 		skin = config.cgrails.skinning.baseskin
 		argsMap.skin = skin
-	}
-	
-	if (!config.cgrails?.templates?.url){
-		ant.echo("********ERROR*************");
-		ant.echo("Templates URL configuration(cgrails.templates.url) not found. Please define the template URL.");
-		exit(1)
-	}
+	}	
 	
 	
    String pluginVersion = pluginSettings.getPluginInfo("${cgrailsPluginDir}").getVersion()

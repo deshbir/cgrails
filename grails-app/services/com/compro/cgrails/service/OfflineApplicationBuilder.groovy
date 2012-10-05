@@ -2,17 +2,17 @@ package  com.compro.cgrails.service
 
 
 import grails.converters.JSON
-
 import grails.util.GrailsUtil
-
-import java.util.zip.ZipEntry
-import java.util.zip.ZipOutputStream
-
 import net.sf.json.JSONObject
 
 import org.apache.http.HttpResponse
+import org.apache.http.NameValuePair
+import org.apache.http.client.HttpClient
+import org.apache.http.client.entity.UrlEncodedFormEntity
 import org.apache.http.client.methods.HttpGet
+import org.apache.http.client.methods.HttpPost
 import org.apache.http.impl.client.DefaultHttpClient
+import org.apache.http.message.BasicNameValuePair
 
 import com.compro.cgrails.CgrailsConstants
 
@@ -184,7 +184,13 @@ class OfflineApplicationBuilder {
 		def urlBuilder = new StringBuilder("http://");
 		urlBuilder.append(APP_HOST).append(":").append(APP_PORT).append("/").append(grailsApplication.metadata['app.name']);
 		urlBuilder.append("/").append(skin).append("/").append(CgrailsConstants.WORKFLOW_OFFLINE).append("/?_offlineMode=y");
-		String html = getHTML(urlBuilder.toString());
+		
+		DefaultHttpClient httpClient = new DefaultHttpClient();
+		HttpGet getRequest = new HttpGet(urlBuilder.toString());
+		HttpResponse response = httpClient.execute(getRequest);
+		
+		String html = getResponseAsString(response, urlBuilder.toString());
+		
 		InputStream contentStringStream = new ByteArrayInputStream(html.getBytes());
 		writeFile(contentStringStream, new File(OFFLINE_PACKAGE_DIR_PATH + INDEX_FILE_NAME));
 	}
@@ -226,7 +232,6 @@ class OfflineApplicationBuilder {
 		def classLoader = Thread.currentThread().contextClassLoader
 		def config = new ConfigSlurper(GrailsUtil.environment).parse(classLoader.loadClass(CGRAILS_CONFIG_FILE_NAME))
 		Boolean isConfigurable = config.cgrails.templates.useConfiguration
-		String templateApiURL =  config.cgrails.templates.url
 		Set<String> templateList
 		if(isConfigurable) {
 			def offlineConf = new ConfigSlurper(GrailsUtil.environment).parse(classLoader.loadClass(CGRAILS_CONFIG_FILE_NAME))
@@ -238,10 +243,20 @@ class OfflineApplicationBuilder {
 		String template;
 		for (String templatename :  templateList) {
 			def urlBuilder = new StringBuilder("http://");
-			urlBuilder.append(APP_HOST).append(":").append(APP_PORT).append("/").append(grailsApplication.metadata['app.name']);
-			urlBuilder.append("/").append(skin).append("/").append(CgrailsConstants.WORKFLOW_OFFLINE)
-				.append(templateApiURL).append("?path=").append(TEMPLATES_FOLDER_NAME).append("/").append(templatename).append("&_offlineMode=y");
-			template = getHTML(urlBuilder.toString())
+			urlBuilder.append(APP_HOST).append(":").append(APP_PORT).append("/")
+				.append(grailsApplication.metadata['app.name']).append("/cgrailstemplate/?_offlineMode=y");
+			
+			HttpClient httpclient = new DefaultHttpClient();
+			HttpPost httppost = new HttpPost(urlBuilder.toString());
+			List<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>(2);
+			nameValuePairs.add(new BasicNameValuePair("skin", skin));
+			nameValuePairs.add(new BasicNameValuePair("workflow", CgrailsConstants.WORKFLOW_OFFLINE));
+			nameValuePairs.add(new BasicNameValuePair("path", TEMPLATES_FOLDER_NAME + "/" + templatename));
+			httppost.setEntity(new UrlEncodedFormEntity(nameValuePairs));
+			
+			HttpResponse response = httpclient.execute(httppost);			
+			
+			template = getResponseAsString(response, urlBuilder.toString());			
 			template = template.replace("\r\n", "").replace("\t", "");
 			jsonTemplate.put(templatename, template);
 		}
@@ -252,24 +267,26 @@ class OfflineApplicationBuilder {
 							 + JAVSCRIPT_DIR_NAME + PRELOADED_TEMPLATES_JS_PATH) );
 	}
 	
-	private String getHTML(String path) {
-		DefaultHttpClient httpClient = new DefaultHttpClient();
-		HttpGet getRequest = new HttpGet(path);
-		HttpResponse response = httpClient.execute(getRequest);
+	/**
+	 * Utility method to get Http response as a string.
+	 * @param response HttpResponse object.
+	 * @param requestUrl The URL of request.
+	 * @return HttpResponse as String.
+	 */
+	private getResponseAsString(HttpResponse response, String requestUrl) {
 		if (response.getStatusLine().getStatusCode() != 200) {
-			throw new RuntimeException("Failed : HTTP error code : "  + response.getStatusLine().getStatusCode() + "for path:${path}");
+			throw new RuntimeException("Failed : HTTP error code : "  + response.getStatusLine().getStatusCode() + "for path:${requestUrl}");
 		}
 		BufferedReader br = new BufferedReader(
 							 new InputStreamReader((response.getEntity().getContent())));
 
-		StringBuffer templateContent = new StringBuffer();
+		StringBuffer htmlContent = new StringBuffer();
 		String output = new String();
 		while ((output = br.readLine()) != null) {
-			templateContent.append(output);
-			templateContent.append("\r\n");
+			htmlContent.append(output);
+			htmlContent.append("\r\n");
 		}
-		httpClient.getConnectionManager().shutdown();
-		return templateContent.toString()
+		return htmlContent.toString()
 	}
 	
 	

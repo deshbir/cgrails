@@ -1,6 +1,6 @@
 package com.compro.cgrails
 
-class TemplateController {
+class CgrailsTemplateController {
 	static allowedMethods = [index: "POST"]
 	
 	def index() {

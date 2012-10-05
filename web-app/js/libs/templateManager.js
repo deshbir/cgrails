@@ -1,14 +1,7 @@
 TemplateManager =  {
 	templates: {},
-	url:"/" + com.compro.cgrails.APPLICATIONNAME + "/" + com.compro.cgrails.SKIN + "/" + com.compro.cgrails.WORKFLOW,
 	get: function(id, callback,options){
 		var cache;
-		var templateUrl;
-		if(!(options == undefined||options.url == null)){
-			templateUrl = options.url;
-		} else{
-			templateUrl = this.url;
-		}
 		if(options == null){
 			cache = true;
 		} else if(options.cache == null){
@@ -25,10 +18,14 @@ TemplateManager =  {
 	 	} else {
 	 		var templateManagerRef = this;
 	 		$.ajax({
-	 			url: templateUrl + "/template/",
+	 			url: "/" + com.compro.cgrails.APPLICATIONNAME + "/cgrailstemplate/",
 	 			type: 'POST',
 		    	dataType: "html",
-		    	data: { path: "templates/"+id},
+		    	data: { 
+		    		path: "templates/" + id,
+		    		skin: com.compro.cgrails.SKIN,
+		    		workflow: com.compro.cgrails.WORKFLOW
+		    	},
 		        async: false,
 		        success: function(template) {
 		        	if(cache){				        		
