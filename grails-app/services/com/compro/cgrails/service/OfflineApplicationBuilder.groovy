@@ -234,8 +234,7 @@ class OfflineApplicationBuilder {
 		Boolean isConfigurable = config.cgrails.templates.useConfiguration
 		Set<String> templateList
 		if(isConfigurable) {
-			def offlineConf = new ConfigSlurper(GrailsUtil.environment).parse(classLoader.loadClass(CGRAILS_CONFIG_FILE_NAME))
-			templateList = new HashSet(offlineConf.cgrails.templateList);
+			templateList = new HashSet(config.cgrails.templates.templateList);
 		} else {
 			templateList = getRequiredTemplates(skin, config);
 		}

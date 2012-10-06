@@ -32,7 +32,7 @@ target(generate: "Generates Offline version of the application") {
 			exit(1)
 		}
 	} else {
-		skin = config.cgrails.skinning.baseskin
+		skin = config.cgrails.skinning.defaultskin
 		argsMap.skin = skin
 	}	
 	

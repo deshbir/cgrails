@@ -20,15 +20,28 @@ target(validateApp:"Validates Application For Configuration Errors") {
 		ant.echo("********ERROR*************");
 		ant.echo("Cgrails Skinning configuration not found.");
 		exit(1)
-	} else if(!config.cgrails.skinning.baseskin) {
+	} 
+	if (!config.cgrails.skinning.baseskin) {
 	    ant.echo("********ERROR*************");
 		ant.echo("Application base skin (cgrails.skinning.baseskin) configuration not found.")
 		exit(1)
-	} else if (!config.cgrails?.less){
-		ant.echo("********ERROR*************");
-		ant.echo("Cgrails LESS configuration not found.");
+	} 
+	if (!config.cgrails.skinning.defaultskin) {
+	    ant.echo("********ERROR*************");
+		ant.echo("Application default skin (cgrails.skinning.defaultskin) configuration not found.")
 		exit(1)
 	} 
+	if (config.cgrails.skinning.skins) {
+		def skins = config.cgrails.skinning.skins
+		skins.each { skin ->
+			if (!skin.value.parent) {			
+				String skinname = skin.key
+				ant.echo("********ERROR*************");
+				ant.echo("Parent not found for skin: " + skinname + ". Please define parent skin for skin: " + skinname)
+				exit(1)
+			}			
+		}
+	}
 	
 }
 setDefaultTarget(validateApp)
