@@ -7,7 +7,7 @@ cgrails {
 		}		
 	}
 	workflows {
-		defaultwokflow = "singlepage"
+		defaultwokflow = "traditional"
 	}
 	less {
 		//Array of Less Files to compile.

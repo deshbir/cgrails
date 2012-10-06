@@ -36,7 +36,7 @@ public class DefaultCgrailsServiceImpl implements CgrailsService {
 			def cgrailsConfig = new ConfigSlurper(GrailsUtil.environment).parse(classLoader.loadClass('CgrailsConfig'))
 			workflow = cgrailsConfig.cgrails?.workflows?.defaultwokflow
 			if(workflow == null) {
-				workflow = CgrailsConstants.WORKFLOW_SINGLEPAGE
+				workflow = CgrailsConstants.WORKFLOW_TRADITIONAL
 			}
 		}
 		return workflow
