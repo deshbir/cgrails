@@ -27,3 +27,6 @@
 		com.compro.cgrails.PreloadedModel.load();
 	</r:script>		
 </g:if>
+<g:if test="${params.mode == "debugAir"}">
+	<r:require module="debugAir"/>	
+</g:if>

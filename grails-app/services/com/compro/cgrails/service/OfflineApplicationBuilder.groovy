@@ -180,11 +180,13 @@ class OfflineApplicationBuilder {
 	}
 
 	
-	public void createIndex(String skin) {
+	public void createIndex(String skin, String mode) {
 		def urlBuilder = new StringBuilder("http://");
 		urlBuilder.append(APP_HOST).append(":").append(APP_PORT).append("/").append(grailsApplication.metadata['app.name']);
 		urlBuilder.append("/").append(skin).append("/").append(CgrailsConstants.WORKFLOW_OFFLINE).append("/?_offlineMode=y");
-		
+		if(mode == "debugAir"){
+			urlBuilder.append('&mode=debugAir');
+		}
 		DefaultHttpClient httpClient = new DefaultHttpClient();
 		HttpGet getRequest = new HttpGet(urlBuilder.toString());
 		HttpResponse response = httpClient.execute(getRequest);

@@ -12,5 +12,9 @@ modules = {
 		resource url: [plugin: 'cgrails', dir: 'js/offline', file:'preloaded_model.js']
 		resource url: [plugin: 'cgrails', dir: 'js/offline', file:'preloaded_templates.js']
 	}
+	debugAir {
+		dependsOn 'offline'
+		resource url: [plugin: 'cgrails', dir: 'js/air', file:'AIRIntrospector.js']
+	}
 	
 }
