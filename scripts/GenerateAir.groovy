@@ -9,19 +9,17 @@ includeTargets << new File("${cgrailsPluginDir}/scripts/GenerateOffline.groovy")
 
 target(air: "Generates Offline AIR version of the application") {
    depends(generate)
-   grailsConsole.updateStatus "Started Generating AIR offline version.....";
+   ant.echo("*********** Started Generating AIR offline version.***********");
    def applicationContext = ServletContextHolder.getServletContext().getAttribute(GrailsApplicationAttributes.APPLICATION_CONTEXT)
    def airApplicationBuilder = applicationContext.getBean("airApplicationBuilder");
-   grailsConsole.updateStatus "Cleaning older AIR package......";
+   ant.echo("Cleaning older AIR package......");
    airApplicationBuilder.deleteOldPackage();
-  
-    grailsConsole.updateStatus "Successfully Cleaned older AIR package.....";
-   grailsConsole.updateStatus "Creating AIR package......";
-   
+   ant.echo("Successfully Cleaned older AIR package.");
+   ant.echo("Creating AIR package......");
    airApplicationBuilder.generateAir("${cgrailsPluginDir}")
-   
-   grailsConsole.updateStatus "Successfully created AIR package.....";
-   grailsConsole.updateStatus "AIR offline version successfully generated.....";
+   ant.echo("Successfully created AIR package.");
+   ant.echo("***********AIR offline version successfully generated***************");
+   ant.echo("****************************************************************************");
    
 }
 

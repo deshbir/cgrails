@@ -1,5 +1,10 @@
 import grails.util.GrailsUtil	
 
+ant.project.getBuildListeners().each{
+	if(it.metaClass.respondsTo(it, "setMessageOutputLevel")){
+		it.setMessageOutputLevel(ant.project.MSG_INFO)
+	}
+}
 
 target(deployCSS:"Deploys CSS files") {	
 	String className = 'com.compro.cgrails.CgrailsConstants'
@@ -7,14 +12,15 @@ target(deployCSS:"Deploys CSS files") {
 	classLoader.addURL(new File(classesDirPath).toURI().toURL())
 	def Constants = Class.forName(className, true, classLoader).newInstance()
 	def config = new ConfigSlurper(GrailsUtil.environment).parse(classLoader.loadClass('CgrailsConfig'))
-    grailsConsole.updateStatus "Started deploying CSS.....";
+    ant.echo("*********** Started deploying CSS.***********");
 	compileLESS(argsMap, Constants, config);
 	generateRTLCSS(argsMap, Constants, config);
-	grailsConsole.updateStatus "CSS deployed successfully.....";
+	ant.echo("*********** CSS deployed successfully.***********");
+	ant.echo("****************************************************************************");
 }
 
 private compileLESS(def argsMap, def Constants, def config) {
-	grailsConsole.updateStatus "Compiling LESS into CSS....."
+	ant.echo("Compiling LESS into CSS..........")
 	if(argsMap.skin){
 		runCompileLess(argsMap.skin,Constants,config)
 	} else {
@@ -26,11 +32,11 @@ private compileLESS(def argsMap, def Constants, def config) {
 		}
 		
 	}
-	grailsConsole.updateStatus "Successfully Compiled LESS into CSS....."
+	ant.echo("Successfully Compiled LESS into CSS.")
 }
 
 private generateRTLCSS(def argsMap, def Constants, def config) {
-	grailsConsole.updateStatus "Generating RTL CSS....."	
+	ant.echo("Generating RTL CSS...........")	
 	if(argsMap.skin){
 		runRTLCompileLess(argsMap.skin,Constants,config)
 	} else {
@@ -41,7 +47,7 @@ private generateRTLCSS(def argsMap, def Constants, def config) {
 			runRTLCompileLess(skinname,Constants,config)
 		}
 	}
-	grailsConsole.updateStatus "Successfully generated RTL CSS....."
+	ant.echo("Successfully generated RTL CSS.")
 }		
 
 private runCompileLess(def skinname, def Constants, def config){
@@ -54,9 +60,9 @@ private runCompileLess(def skinname, def Constants, def config){
 			String ouputFilePath = "${cssDir}/${skinname}/${lessFilename}.css"
 			File ouputFile = new File(ouputFilePath)
 			if(ouputFile.exists()) {
-				ouputFile.delete()
+				ant.delete(file:"${ouputFilePath}")
 			}
-			grailsConsole.updateStatus "Compiling ${inputFilePath} to ${ouputFilePath} ....."
+			ant.echo("Compiling ${inputFilePath} to ${ouputFilePath}")
 			ant.exec(failonerror: "false",executable:"cmd"){
 				arg(value:"/c")
 				arg(value:"cscript")
@@ -79,9 +85,9 @@ private runRTLCompileLess(def skinname, def Constants, def config){
 			String ouputFilePath = "${cssDir}/${skinname}/${cssFileName}-rtl.css"
 			File ouputFile = new File(ouputFilePath)
 			if(ouputFile.exists()) {
-				ouputFile.delete()
+				ant.delete(file:"${ouputFilePath}")
 			}
-			grailsConsole.updateStatus "Compiling ${inputFilePath} to ${ouputFilePath} ....."
+			ant.echo("Compiling ${inputFilePath} to ${ouputFilePath}")
 			ant.exec(executable:"cmd"){
 				arg(value:"/c")
 				arg(value:"r2")
