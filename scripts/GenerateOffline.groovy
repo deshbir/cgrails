@@ -1,5 +1,10 @@
 import grails.util.GrailsUtil
 
+import org.apache.http.HttpResponse
+import org.apache.http.client.HttpClient
+import org.apache.http.client.methods.HttpGet
+import org.apache.http.conn.HttpHostConnectException
+import org.apache.http.impl.client.DefaultHttpClient
 import org.codehaus.groovy.grails.web.context.ServletContextHolder
 import org.codehaus.groovy.grails.web.servlet.GrailsApplicationAttributes
 
@@ -37,8 +42,7 @@ target(generate: "Generates Offline version of the application") {
 	
 	
    String pluginVersion = pluginSettings.getPluginInfo("${cgrailsPluginDir}").getVersion()
-   depends(run)
-   
+   depends(isServerRunning)
    def applicationContext = ServletContextHolder.getServletContext().getAttribute(GrailsApplicationAttributes.APPLICATION_CONTEXT)
    def offlineApplicationBuilder = applicationContext.getBean("offlineApplicationBuilder");
    
@@ -57,7 +61,7 @@ target(generate: "Generates Offline version of the application") {
    offlineApplicationBuilder.copyStyles(skin);
    grailsConsole.updateStatus "Successfully copied CSS files.....";
    grailsConsole.updateStatus "Creating Index HTML.....";
-   offlineApplicationBuilder.createIndex(skin);
+    offlineApplicationBuilder.createIndex(skin,argsMap.mode);
    grailsConsole.updateStatus "Successfully created Index HTML.....";
    grailsConsole.updateStatus "Creating preloaded templates file.....";
    offlineApplicationBuilder.createPreloaderTemplate(skin, pluginVersion);
@@ -67,5 +71,29 @@ target(generate: "Generates Offline version of the application") {
    grailsConsole.updateStatus "Successfully created preloaded model file.....";
    grailsConsole.updateStatus "Offline version successfully generated for " + skin + " skin.....";
 }
+target (isServerRunning : "Check if server is running") {
+	
+	def urlBuilder = new StringBuilder("http://");
+	urlBuilder.append("localhost").append(":")
+				.append("8080").append("/")
+				.append("grailway/");
+		
+	try{
+		HttpClient httpclient = new DefaultHttpClient();
+		HttpGet httpGet = new HttpGet(urlBuilder.toString());
+		
+		HttpResponse response = httpclient.execute(httpGet);
+		grailsConsole.updateStatus "Error: Server is running. Please stop the server and try again."
+		exit(1);
+	} catch(HttpHostConnectException e){
+		//if the connection is refused run the server.
+		depends(run)
+	}
+	catch (Exception e){
+		grailsConsole.updateStatus e.message
+		exit(1);
+	}
+	
+}	
 
 setDefaultTarget(generate)
