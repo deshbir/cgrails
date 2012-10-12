@@ -26,9 +26,8 @@ target(generate: "Generates Offline version of the application") {
 	if(argsMap.skin) {
 		skin = argsMap.skin
 		if(!config.cgrails.skinning.skins."${skin}") {
-			ant.echo("********ERROR*************");
-			ant.echo("Invalid Skin: " + skin + ". Please define skin in cgrails skinning configuration.");
-			ant.echo("**************************");
+			grailsConsole.updateStatus "ERROR.....";
+			grailsConsole.updateStatus "Invalid Skin: " + skin + ". Please define skin in cgrails skinning configuration.....";
 			exit(1)
 		}
 	} else {
@@ -43,31 +42,30 @@ target(generate: "Generates Offline version of the application") {
    def applicationContext = ServletContextHolder.getServletContext().getAttribute(GrailsApplicationAttributes.APPLICATION_CONTEXT)
    def offlineApplicationBuilder = applicationContext.getBean("offlineApplicationBuilder");
    
-   ant.echo("*********** Started Generating offline version for " + skin + " skin.***********");
+   grailsConsole.updateStatus "Started Generating offline version for " + skin + " skin.....";
    //depends(deployCSS)
-   ant.echo("Cleaning older package......");
+   grailsConsole.updateStatus "Cleaning older package.....";
    offlineApplicationBuilder.deleteOldPackage();
-   ant.echo("Successfully cleaned older package.");
-   ant.echo("Copying javascript files......");
+   grailsConsole.updateStatus "Successfully cleaned older package.....";
+   grailsConsole.updateStatus "Copying javascript files.....";
    offlineApplicationBuilder.copyScripts("${cgrailsPluginDir}", pluginVersion);
-   ant.echo("Successfully copied javascript files.");
-   ant.echo("Copying image files......");
+   grailsConsole.updateStatus "Successfully copied javascript files.....";
+   grailsConsole.updateStatus "Copying image files....." ;
    offlineApplicationBuilder.copyImages();
-   ant.echo("Successfully coped image files.");
-   ant.echo("Copying CSS files......");
+   grailsConsole.updateStatus "Successfully coped image files.....";
+   grailsConsole.updateStatus "Copying CSS files.....";
    offlineApplicationBuilder.copyStyles(skin);
-   ant.echo("Successfully copied CSS files.");
-   ant.echo("Creating Index HTML......");
+   grailsConsole.updateStatus "Successfully copied CSS files.....";
+   grailsConsole.updateStatus "Creating Index HTML.....";
    offlineApplicationBuilder.createIndex(skin);
-   ant.echo("Successfully created Index HTML.");
-   ant.echo("Creating preloaded templates file......");
+   grailsConsole.updateStatus "Successfully created Index HTML.....";
+   grailsConsole.updateStatus "Creating preloaded templates file.....";
    offlineApplicationBuilder.createPreloaderTemplate(skin, pluginVersion);
-   ant.echo("Successfully created preloaded templates file.");
-   ant.echo("Creating preloaded model file......");
+   grailsConsole.updateStatus "Successfully created preloaded templates file.....";
+   grailsConsole.updateStatus "Creating preloaded model file.....";
    offlineApplicationBuilder.createPreloadedModel(pluginVersion);
-   ant.echo("Successfully created preloaded model file.");
-   ant.echo("*********** Offline version successfully generated for " + skin + " skin.***********");
-   ant.echo("****************************************************************************");
+   grailsConsole.updateStatus "Successfully created preloaded model file.....";
+   grailsConsole.updateStatus "Offline version successfully generated for " + skin + " skin.....";
 }
 
 setDefaultTarget(generate)

@@ -12,23 +12,23 @@ target(validateApp:"Validates Application For Configuration Errors") {
 	try {
 		config = new ConfigSlurper(GrailsUtil.environment).parse(classLoader.loadClass('CgrailsConfig'))
 	} catch (Exception e) {
-		ant.echo("********ERROR*************");
-		ant.echo("Cgrails configuration file not found. Please add CgrailsConfig.groovy file.");
+		grailsConsole.updateStatus "ERROR.....";
+		grailsConsole.updateStatus "Cgrails configuration file not found. Please add CgrailsConfig.groovy file.....";
 		exit(1)		
 	}
 	if (!config.cgrails?.skinning){
-		ant.echo("********ERROR*************");
-		ant.echo("Cgrails Skinning configuration not found.");
+		grailsConsole.updateStatus "ERROR.....";
+		grailsConsole.updateStatus "Cgrails Skinning configuration not found.....";
 		exit(1)
 	} 
 	if (!config.cgrails.skinning.baseskin) {
-	    ant.echo("********ERROR*************");
-		ant.echo("Application base skin (cgrails.skinning.baseskin) configuration not found.")
+	    grailsConsole.updateStatus "ERROR.....";
+		grailsConsole.updateStatus "Application base skin (cgrails.skinning.baseskin) configuration not found....."
 		exit(1)
 	} 
 	if (!config.cgrails.skinning.defaultskin) {
-	    ant.echo("********ERROR*************");
-		ant.echo("Application default skin (cgrails.skinning.defaultskin) configuration not found.")
+	    grailsConsole.updateStatus "ERROR.....";
+		grailsConsole.updateStatus "Application default skin (cgrails.skinning.defaultskin) configuration not found....."
 		exit(1)
 	} 
 	if (config.cgrails.skinning.skins) {
@@ -36,8 +36,8 @@ target(validateApp:"Validates Application For Configuration Errors") {
 		skins.each { skin ->
 			if (!skin.value.parent) {			
 				String skinname = skin.key
-				ant.echo("********ERROR*************");
-				ant.echo("Parent not found for skin: " + skinname + ". Please define parent skin for skin: " + skinname)
+				grailsConsole.updateStatus "ERROR.....";
+				grailsConsole.updateStatus "Parent not found for skin: " + skinname + ". Please define parent skin for skin: " + skinname
 				exit(1)
 			}			
 		}
