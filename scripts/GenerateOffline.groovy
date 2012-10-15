@@ -74,9 +74,7 @@ target(generate: "Generates Offline version of the application") {
 target (isServerRunning : "Check if server is running") {
 	
 	def urlBuilder = new StringBuilder("http://");
-	urlBuilder.append("localhost").append(":")
-				.append("8080").append("/")
-				.append("grailway/");
+	urlBuilder.append("localhost").append(":").append("8080").append("/");
 		
 	try{
 		HttpClient httpclient = new DefaultHttpClient();
