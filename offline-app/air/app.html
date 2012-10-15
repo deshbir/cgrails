@@ -13,7 +13,6 @@
 		<script type="text/javascript">
 			var interface = {};
 			var localStorage = air.EncryptedLocalStore;
-			var counter = 0;
 			interface.setItem = function(name,str){
 				var bytes = new air.ByteArray();
 				bytes.writeUTFBytes(str);
@@ -36,11 +35,8 @@
 				air.EncryptedLocalStore.removeItem(name);
 			}
 			interface.clear = function(){
-				try{
-					if(counter <= 0){
-						localStorage.reset();
-						counter++;
-					}
+				try {
+					localStorage.reset();
 				} catch (e){
 					air.trace("already blank");
 				}
