@@ -48,9 +48,9 @@ class AirApplicationBuilder {
 			File packageBatch = new File(OfflineApplicationBuilder.TARGET_OFFLINE_DIR_PATH + AIR_DIR_PATH + "package-win.bat");
 			packageBatch.delete();
 			//Copying air debugging Javascripts required from plugin if debug is true
-			File cgrailsAirLibsJSsource = new File(pluginDir + "/" + OfflineApplicationBuilder.WEBAPP_DIR_NAME + "/" + OfflineApplicationBuilder.JAVSCRIPT_DIR_NAME + "/air");
+			File cgrailsAirLibsJSsource = new File(pluginDir + "/" + OfflineApplicationBuilder.WEBAPP_DIR_NAME + "/" + OfflineApplicationBuilder.JAVSCRIPT_DIR_NAME + "/offline/air");
 			File targetAirLibsJSfolder = new File(OfflineApplicationBuilder.TARGET_OFFLINE_DIR_PATH + AIR_DIR_PATH + "offline/plugins/" +
-				CgrailsConstants.CGRAILS + "-" + pluginVersion + "/" + OfflineApplicationBuilder.JAVSCRIPT_DIR_NAME + "/air");
+				CgrailsConstants.CGRAILS + "-" + pluginVersion + "/" + OfflineApplicationBuilder.JAVSCRIPT_DIR_NAME + "/offline/air");
 			File targetAirfolder = new File(OfflineApplicationBuilder.TARGET_OFFLINE_DIR_PATH + AIR_DIR_PATH);
 			OfflineApplicationBuilder.copyDirectory(cgrailsAirLibsJSsource, targetAirLibsJSfolder);
 			OfflineApplicationBuilder.copyDirectory(cgrailsAirLibsJSsource, targetAirfolder);
@@ -95,38 +95,25 @@ class AirApplicationBuilder {
 	}
 	
 	public String readFile(File file) {
-		try{
-			// Open the file that is the first
-			// command line parameter
-			FileInputStream fstream = new FileInputStream(file);
-			// Get the object of DataInputStream
-			DataInputStream din = new DataInputStream(fstream);
-			BufferedReader br = new BufferedReader(new InputStreamReader(din));
-			String strLine;
-			String content = "";
-			//Read File Line By Line
-			while ((strLine = br.readLine()) != null)   {
-			// Print the content on the console
-				content += "\n" + strLine;
-			}
-			//Close the input stream
-			din.close();
-			return content
-		} catch (FileNotFoundException e){//Catch exception if any
-			System.err.println("Error: " + e.getMessage());
-			return ""
+		FileInputStream fstream = new FileInputStream(file);
+		// Get the object of DataInputStream
+		DataInputStream din = new DataInputStream(fstream);
+		BufferedReader br = new BufferedReader(new InputStreamReader(din));
+		String strLine;
+		String content = "";
+		//Read File Line By Line
+		while ((strLine = br.readLine()) != null)   {
+			content += "\n" + strLine;
 		}
+		//Close the input stream
+		din.close();
+		return content
 	}
 	public void writeFile(File file , String content){
-		try{
-			// Create file
-			FileWriter fstream = new FileWriter(file);
-			BufferedWriter out = new BufferedWriter(fstream);
-			out.write(content);
-			out.close();
-		}catch (Exception e){//Catch exception if any
-			System.err.println("Error: " + e.getMessage());
-		}
+		FileWriter fstream = new FileWriter(file);
+		BufferedWriter out = new BufferedWriter(fstream);
+		out.write(content);
+		out.close();
 	}
 
 

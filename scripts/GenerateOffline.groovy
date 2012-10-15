@@ -61,7 +61,7 @@ target(generate: "Generates Offline version of the application") {
    offlineApplicationBuilder.copyStyles(skin);
    grailsConsole.updateStatus "Successfully copied CSS files.....";
    grailsConsole.updateStatus "Creating Index HTML.....";
-    offlineApplicationBuilder.createIndex(skin,argsMap.mode);
+    offlineApplicationBuilder.createIndex(skin, argsMap.mode);
    grailsConsole.updateStatus "Successfully created Index HTML.....";
    grailsConsole.updateStatus "Creating preloaded templates file.....";
    offlineApplicationBuilder.createPreloaderTemplate(skin, pluginVersion);

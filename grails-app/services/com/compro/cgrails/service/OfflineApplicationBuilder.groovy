@@ -31,8 +31,8 @@ class OfflineApplicationBuilder {
 	private static final String INDEX_FILE_NAME = "index.html"	
 	private static final String CGRAILS_CONFIG_FILE_NAME = "CgrailsConfig"
 	private static final String TEMPLATES_FOLDER_NAME = "templates"	
-	private static final String PRELOADED_TEMPLATES_JS_PATH = "/offline/preloaded_templates.js"
-	private static final String PRELOADED_MODELS_JS_PATH = "/offline/preloaded_model.js"	
+	private static final String PRELOADED_TEMPLATES_JS_PATH = "/offline/core/preloaded_templates.js"
+	private static final String PRELOADED_MODELS_JS_PATH = "/offline/core/preloaded_model.js"	
 	private static final String APP_HOST = "localhost"
 	private static final String APP_PORT = "8080"
 
@@ -61,10 +61,10 @@ class OfflineApplicationBuilder {
 	public void copyScripts(String pluginDir, String pluginVersion) {
 		
 		//Copying offline Javascripts required from plugin
-		File offlineJSsource = new File(pluginDir + "/" + WEBAPP_DIR_NAME + "/" +JAVSCRIPT_DIR_NAME + "/offline");
+		File offlineJSsource = new File(pluginDir + "/" + WEBAPP_DIR_NAME + "/" +JAVSCRIPT_DIR_NAME + "/offline/core");
 			
 		File targetOfflineJSfolder = new File(OFFLINE_PACKAGE_DIR_PATH + "plugins/" +
-			CgrailsConstants.CGRAILS + "-" + pluginVersion + "/" + JAVSCRIPT_DIR_NAME + "/offline");
+			CgrailsConstants.CGRAILS + "-" + pluginVersion + "/" + JAVSCRIPT_DIR_NAME + "/offline/core");
 		copyDirectory(offlineJSsource, targetOfflineJSfolder);
 		
 		//Copying libs Javascripts required from plugin

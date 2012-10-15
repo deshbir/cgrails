@@ -8,13 +8,13 @@ modules = {
 	}
 	offline {
 		dependsOn 'cgrailsLibs'
-		resource url: [plugin: 'cgrails', dir: 'js/offline', file:'backbone.localStorage.js']
-		resource url: [plugin: 'cgrails', dir: 'js/offline', file:'preloaded_model.js']
-		resource url: [plugin: 'cgrails', dir: 'js/offline', file:'preloaded_templates.js']
+		resource url: [plugin: 'cgrails', dir: 'js/offline/core', file:'backbone.localStorage.js']
+		resource url: [plugin: 'cgrails', dir: 'js/offline/core', file:'preloaded_model.js']
+		resource url: [plugin: 'cgrails', dir: 'js/offline/core', file:'preloaded_templates.js']
 	}
 	debugAir {
 		dependsOn 'offline'
-		resource url: [plugin: 'cgrails', dir: 'js/air', file:'AIRIntrospector.js']
+		resource url: [plugin: 'cgrails', dir: 'js/offline/air', file:'AIRIntrospector.js']
 	}
 	
 }
