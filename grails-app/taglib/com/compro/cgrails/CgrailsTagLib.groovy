@@ -33,13 +33,14 @@ class CgrailsTagLib {
 	}
 	
 	def switch_singlepage = { attrs, body ->
-		String actionName = attrs.action
-		String appName = grailsApplication.metadata['app.name']
+		String actionName = attrs.action		
 		String href
 		if (CgrailsUtils.getWorkflow() == CgrailsConstants.WORKFLOW_OFFLINE) {
 			href = actionName + ".html"
-		} else {		
-			href = "../singlepage/" + actionName
+		} else {	
+			String appName = grailsApplication.metadata['app.name']
+			String currentSkin = CgrailsUtils.getSkin()
+			href = "/${appName}/${currentSkin}/singlepage/" + actionName
 		}
 		out << href
 	}
