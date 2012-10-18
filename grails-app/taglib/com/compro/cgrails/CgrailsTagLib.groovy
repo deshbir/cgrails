@@ -32,6 +32,18 @@ class CgrailsTagLib {
 		out << g.render(template : "/setupCgrailsEnvironment", plugin : "cgrails")		
 	}
 	
+	def switch_singlepage = { attrs, body ->
+		String actionName = attrs.action
+		String appName = grailsApplication.metadata['app.name']
+		String href
+		if (CgrailsUtils.getWorkflow() == CgrailsConstants.WORKFLOW_OFFLINE) {
+			href = actionName + ".html"
+		} else {		
+			href = "../singlepage/" + actionName
+		}
+		out << href
+	}
+	
 	private void getLTRStyleSheet(def attrs){
 		String fileType
 		String currentSkin = CgrailsUtils.getSkin()

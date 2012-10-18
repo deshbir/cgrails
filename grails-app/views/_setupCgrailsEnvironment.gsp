@@ -16,7 +16,6 @@
 		}
 	}			
 </r:script>
-
 <g:if test="${workflow == CgrailsConstants.WORKFLOW_OFFLINE}">
 	<r:require module="offline"/>
 	<r:script type="text/javascript" disposition="defer">
@@ -24,7 +23,7 @@
 			localStorage = window.parentSandboxBridge;
 		}	
 		localStorage.clear();	
-		com.compro.cgrails.PreloadedModel.load();
+		com.compro.cgrails.preloadData();
 	</r:script>	
 	<g:if test="${params.mode == "debugAir"}">
 		<r:require module="debugAir"/>	

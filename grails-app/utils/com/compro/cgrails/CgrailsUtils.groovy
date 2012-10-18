@@ -1,13 +1,7 @@
 package com.compro.cgrails
 
-import java.util.List;
-
-import javax.servlet.http.HttpServletRequest
-
-import org.codehaus.groovy.grails.commons.DefaultGrailsApplication
 import org.codehaus.groovy.grails.web.context.ServletContextHolder
 import org.codehaus.groovy.grails.web.servlet.GrailsApplicationAttributes
-import org.springframework.context.ApplicationContext
 import org.springframework.web.context.request.RequestContextHolder
 
 class CgrailsUtils {	
@@ -22,9 +16,12 @@ class CgrailsUtils {
 	}
 	
 	def static String getWorkflow() {
-		def applicationContext = ServletContextHolder.getServletContext().getAttribute(GrailsApplicationAttributes.APPLICATION_CONTEXT)
-		def cgrailsService = applicationContext.getBean("cgrailsService");
-		return cgrailsService.getWorkflow();
+		HashMap<?,?> paramsMap = RequestContextHolder.currentRequestAttributes().params
+		String workflow = paramsMap["workflow"]	
+		if (workflow == null) {
+			return CgrailsConstants.WORKFLOW_TRADITIONAL
+		}	
+		return workflow
 	}
 	
 	def static getOrientation() {

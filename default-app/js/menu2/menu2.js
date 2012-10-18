@@ -4,9 +4,9 @@ View2 = new function() {
 	
 	var Router = Backbone.Router.extend({
 		routes: {
-	      'menu2':'menu1'
+	      'template2':'template2'
 	    },	    
-	    menu1 : function() {
+	    template2 : function() {
 	    	View2.initialize()
 	    }
 	});

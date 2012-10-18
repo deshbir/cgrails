@@ -94,35 +94,28 @@ class OfflineApplicationBuilder {
 	}
 	
 	private void createBacbonePreloadedModel(String pluginVersion) {
+		String appName = grailsApplication.metadata['app.name']
 		
-		def modelMainBuffer = new StringBuffer();
-		def modelDataBuffer = new StringBuffer();
-		def modelLoaderBuffer = new StringBuffer();
+		def preloadedModelBuffer = new StringBuffer();
 		
-		modelMainBuffer.append("com.compro.cgrails.PreloadedModel = new function () {").append("\n");
+		preloadedModelBuffer.append("com.compro.cgrails.PreloadedModel = ");
+		
+		JSONObject modelsJSON = new JSONObject();
 		
 		//Get all domain classes of application.
 		def domainClasses = grailsApplication.domainClasses
 		for (def domainClass:domainClasses) {
 			Class domain = domainClass.clazz
 			//getting class name.
-			String modelClassName = domain.getName()
-			String backboneObject, backboneType
+			String dataAPI
 			JSON initialJsonData
 			try {
-				// getting backboneObject property
-				backboneObject = domain.backboneObject
+				// getting dataAPI property
+				dataAPI = "/" + appName + domain.dataAPI
 			} catch (MissingPropertyException e) {
-			    // If backboneObject property not found, do nothing. Continue to next item
+			    // If dataAPI property not found, do nothing. Continue to next item
 				continue
 			}			
-			try {	
-				// getting backboneType property
-				backboneType = domain.backboneType
-			} catch (MissingPropertyException e) {
-				// If backboneType property not found, do nothing. Continue to next item
-				continue
-			}
 			try {
 				// call initialData function to get pre-loaded data.
 				initialJsonData = domain.initialData()
@@ -130,31 +123,19 @@ class OfflineApplicationBuilder {
 				// If initialData function not found, do nothing. Continue to next item
 				continue
 			}	
-			String dataString = modelClassName.substring(modelClassName.lastIndexOf(".") + 1, modelClassName.length()).toLowerCase() + "Data"
-			modelDataBuffer.append("var ").append(dataString).append(" = ").append(initialJsonData);
+			modelsJSON.put(dataAPI, initialJsonData.toString());
 			
-			if(backboneType == "model") {
-				modelDataBuffer.append(";").append("\n");
-				modelLoaderBuffer.append(backboneObject).append(".get().save(").append(dataString).append(")").append("\n");
-			} else if (backboneType == "collection") {
-				modelDataBuffer.append("\n");
-				modelLoaderBuffer.append("for (var i=0; i<").append(dataString).append(".length;i++) {").append("\n");
-				modelLoaderBuffer.append(backboneObject).append(".get().create(").append(dataString).append("[i])").append("\n");
-				modelLoaderBuffer.append("}").append("\n");
-			}
 		}
-		modelMainBuffer.append(modelDataBuffer).append("\n");
-		modelMainBuffer.append("this.load = function () {").append("\n");
-		modelMainBuffer.append(modelLoaderBuffer);
-		modelMainBuffer.append("};").append("\n");
-		modelMainBuffer.append("}");
-		
+		preloadedModelBuffer.append(modelsJSON.toString(8));
 								
 		File file = new File(OFFLINE_PACKAGE_DIR_PATH + "plugins/" + CgrailsConstants.CGRAILS
 								+ "-" + pluginVersion + "/" + JAVSCRIPT_DIR_NAME + PRELOADED_MODELS_JS_PATH);
 		
-		//Add content to preloaded_model.js
-		file.write(modelMainBuffer.toString());
+		//Append to existing file. Dont overwrite				
+		FileWriter fileWriter = new FileWriter(file, true);
+		BufferedWriter bufferWriter = new BufferedWriter(fileWriter);
+		bufferWriter.write(preloadedModelBuffer.toString());
+		bufferWriter.close();
 	}
 	private void copyStyles(String skin) {
 		/****************************************************
@@ -181,9 +162,24 @@ class OfflineApplicationBuilder {
 
 	
 	public void createIndex(String skin, String mode) {
+		
+		def singlepageController = grailsApplication.getArtefact("Controller", "com.compro.cgrails.SinglepageController")
+		def actions = new HashSet<String>()
+		for (String uri : singlepageController.uris ) {
+			actions.add(singlepageController.getMethodActionName(uri))
+		}		
+		Iterator actionsIter = actions.iterator();	   
+		while(actionsIter.hasNext()) {
+		  String actionName = actionsIter.next();
+		  writePage(actionName, actionName + ".html", skin, mode);
+	  	}
+	}
+
+    private writePage(String pageName, String targetFileName, String skin, String mode) {
 		def urlBuilder = new StringBuilder("http://");
 		urlBuilder.append(APP_HOST).append(":").append(APP_PORT).append("/").append(grailsApplication.metadata['app.name']);
-		urlBuilder.append("/").append(skin).append("/").append(CgrailsConstants.WORKFLOW_OFFLINE).append("/?_offlineMode=y");
+		urlBuilder.append("/").append(skin).append("/singlepage/").append(pageName)
+		.append("?workflow=").append(CgrailsConstants.WORKFLOW_OFFLINE);
 		if(mode == "debugAir"){
 			urlBuilder.append('&mode=debugAir');
 		}
@@ -194,7 +190,7 @@ class OfflineApplicationBuilder {
 		String html = getResponseAsString(response, urlBuilder.toString());
 		
 		InputStream contentStringStream = new ByteArrayInputStream(html.getBytes());
-		writeFile(contentStringStream, new File(OFFLINE_PACKAGE_DIR_PATH + INDEX_FILE_NAME));
+		writeFile(contentStringStream, new File(OFFLINE_PACKAGE_DIR_PATH + targetFileName));
 	}
 	
 	private Set<String> getRequiredTemplates(String skin, def config){
@@ -245,13 +241,13 @@ class OfflineApplicationBuilder {
 		for (String templatename :  templateList) {
 			def urlBuilder = new StringBuilder("http://");
 			urlBuilder.append(APP_HOST).append(":").append(APP_PORT).append("/")
-				.append(grailsApplication.metadata['app.name']).append("/cgrailstemplate/?_offlineMode=y");
+				.append(grailsApplication.metadata['app.name']).append("/cgrailstemplate/?workflow=")
+				.append(CgrailsConstants.WORKFLOW_OFFLINE);
 			
 			HttpClient httpclient = new DefaultHttpClient();
 			HttpPost httppost = new HttpPost(urlBuilder.toString());
 			List<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>(2);
 			nameValuePairs.add(new BasicNameValuePair("skin", skin));
-			nameValuePairs.add(new BasicNameValuePair("workflow", CgrailsConstants.WORKFLOW_OFFLINE));
 			nameValuePairs.add(new BasicNameValuePair("path", TEMPLATES_FOLDER_NAME + "/" + templatename));
 			httppost.setEntity(new UrlEncodedFormEntity(nameValuePairs));
 			

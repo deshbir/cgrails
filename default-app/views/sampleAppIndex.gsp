@@ -1,1 +1,1 @@
-<%response.sendRedirect(request.getContextPath()+"/default/singlepage");%>
+<%response.sendRedirect(request.getContextPath()+"/default/");%>

@@ -13,6 +13,5 @@ class CgrailsConstants {
 	 * Workflows supported by Cgrails plugin.
 	 ******************************************************/
 	public static final String WORKFLOW_TRADITIONAL = "traditional"
-	public static final String WORKFLOW_SINGLEPAGE = "singlepage"
 	public static final String WORKFLOW_OFFLINE = "offline"		
 }

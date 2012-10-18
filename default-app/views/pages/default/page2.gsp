@@ -8,7 +8,7 @@
 			View2.routerInitialize();
 			Backbone.history.start();
 			if (window.location.hash.length <= 1){
-				Backbone.history.navigate("#/menu2", {trigger:true,replace:true});
+				Backbone.history.navigate("#/template2", {trigger:true,replace:true});
 			} 	
 		</r:script>	
 	<body/>

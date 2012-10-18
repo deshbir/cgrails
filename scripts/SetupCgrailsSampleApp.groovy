@@ -40,7 +40,9 @@ target(addStyles: "Adds required LESS files in the application.") {
 target(addControllers: "Adds required controllers in the application.") {
 	grailsConsole.updateStatus "Started adding Controllers....."
 	ant.mkdir(dir: "grails-app/controllers/com/compro/cgrails")
-	ant.copy ( todir : 'grails-app/controllers/com/compro/cgrails' ,  file : "${cgrailsPluginDir}/default-app/controllers/com/compro/cgrails/MainController.groovy" )
+	ant.copy ( todir : 'grails-app/controllers/com/compro/cgrails'){
+		fileset(dir: "${cgrailsPluginDir}/default-app/controllers/com/compro/cgrails")
+	} 
 	grailsConsole.updateStatus "Successfully added Controllers....."
 }
 

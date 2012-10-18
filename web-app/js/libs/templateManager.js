@@ -23,8 +23,7 @@ TemplateManager =  {
 		    	dataType: "html",
 		    	data: { 
 		    		path: "templates/" + id,
-		    		skin: com.compro.cgrails.SKIN,
-		    		workflow: com.compro.cgrails.WORKFLOW
+		    		skin: com.compro.cgrails.SKIN
 		    	},
 		        async: false,
 		        success: function(template) {

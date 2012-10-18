@@ -26,20 +26,5 @@ public class DefaultCgrailsServiceImpl implements CgrailsService {
 		} else {
 			return cgrailsConfig.cgrails.skinning.defaultskin
 		}
-	}
-	
-	public String getWorkflow() {
-		HashMap<?,?> paramsMap = RequestContextHolder.currentRequestAttributes().params
-		String workflow = paramsMap["workflow"]		
-		if(workflow == null) {
-			def classLoader = Thread.currentThread().contextClassLoader
-			def cgrailsConfig = new ConfigSlurper(GrailsUtil.environment).parse(classLoader.loadClass('CgrailsConfig'))
-			workflow = cgrailsConfig.cgrails?.workflows?.defaultwokflow
-			if(workflow == null) {
-				workflow = CgrailsConstants.WORKFLOW_TRADITIONAL
-			}
-		}
-		return workflow
-	}
-	
+	}	
 }

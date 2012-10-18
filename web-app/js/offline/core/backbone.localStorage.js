@@ -61,15 +61,19 @@ _.extend(Backbone.LocalStorage.prototype, {
 
   // Retrieve a model from `this.data` by id.
   find: function(model) {
-    return JSON.parse(this.localStorage().getItem(this.name+"-"+model.id));
+	if (model.id) {
+		return JSON.parse(this.localStorage().getItem(this.name+"-"+model.id));
+	} else {
+		return JSON.parse(this.localStorage().getItem(this.name+"-"+this.records[0])); 
+	 }
   },
 
   // Return the array of all models currently in storage.
-  findAll: function() {
-    return _(this.records).chain()
-        .map(function(id){return JSON.parse(this.localStorage().getItem(this.name+"-"+id));}, this)
-        .compact()
-        .value();
+  findAll: function(options) {
+	return _(this.records).chain()
+    	.map(function(id){return JSON.parse(this.localStorage().getItem(this.name+"-"+id));}, this)
+    	.compact()
+    	.value();    
   },
 
   // Delete a model from `this.data`, returning it.
@@ -96,7 +100,12 @@ Backbone.LocalStorage.sync = window.Store.sync = Backbone.localSync = function(m
    if (collection.localStorage != null){
 		store = collection.localStorage;
    } else{
-		store =  new Store(collection.url);
+	   if (collection instanceof Backbone.Model) {
+		   store =  new Store(collection.url());
+	   } else {
+		   store =  new Store(collection.url);
+	   }
+		
 		collection.localStorage = store;
    }	
 
@@ -111,7 +120,14 @@ Backbone.LocalStorage.sync = window.Store.sync = Backbone.localSync = function(m
   var resp;
 
   switch (method) {
-    case "read":    resp = model.id != undefined ? store.find(model) : store.findAll(); break;
+    case "read":    {
+      if (this instanceof Backbone.Model) {
+    	  resp = store.find(model);
+   	  } else {
+   		  resp = model.id != undefined ? store.find(model) : store.findAll(options); 
+   	  }
+      break;
+    }	
     case "create":  resp = store.create(model);                            break;
     case "update":  resp = store.update(model);                            break;
     case "delete":  resp = store.destroy(model);                           break;
@@ -141,6 +157,23 @@ Backbone.getSyncMethod = function(model) {
 // the original 'Backbone.sync' is still available in 'Backbone.ajaxSync'
 Backbone.sync = function(method, model, options, error) {
 	return Backbone.getSyncMethod(model).apply(this, [method, model, options, error]);
+};
+
+Backbone.LocalStorage.preloadStore = function(name) {
+	this.name = name;
+	var store = localStorage.getItem(this.name);
+	this.records = (store && store.split(",")) || [];
+	this.save = function(){
+		localStorage.setItem(this.name, this.records.join(","));
+	}
+	this.create = function(model){
+		if (!model.id) {
+			model.id = guid();
+		}
+		localStorage.setItem(this.name+"-"+model.id, JSON.stringify(model));
+		this.records.push(model.id.toString());
+		this.save();
+	}
 };
 
 })();
