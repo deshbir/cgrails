@@ -5,6 +5,7 @@ modules = {
 		resource url: [plugin: 'cgrails', dir: 'js/libs', file:'json2.js']
 		resource url: [plugin: 'cgrails', dir: 'js/libs', file:'backbone.js']
 		resource url: [plugin: 'cgrails', dir: 'js/libs', file:'templateManager.js']
+		resource url: [plugin: 'cgrails', dir: 'js/libs', file:'cgrails.js']
 	}
 	offline {
 		dependsOn 'cgrailsLibs'
