@@ -106,24 +106,26 @@ class OfflineApplicationBuilder {
 		def domainClasses = grailsApplication.domainClasses
 		for (def domainClass:domainClasses) {
 			Class domain = domainClass.clazz
-			//getting class name.
-			String dataAPI
-			JSON initialJsonData
-			try {
-				// getting dataAPI property
-				dataAPI = "/" + appName + domain.dataAPI
-			} catch (MissingPropertyException e) {
-			    // If dataAPI property not found, do nothing. Continue to next item
-				continue
-			}			
+			String[] cachedUrls
 			try {
 				// call initialData function to get pre-loaded data.
-				initialJsonData = domain.initialData()
+				cachedUrls = domain.offlineCachedUrls()
 			} catch (MissingMethodException e) {
 				// If initialData function not found, do nothing. Continue to next item
 				continue
 			}	
-			modelsJSON.put(dataAPI, initialJsonData.toString());
+			for (String url : cachedUrls) {
+				def urlBuilder = new StringBuilder("http://");
+				urlBuilder.append(APP_HOST).append(":").append(APP_PORT).append("/")
+				.append(appName).append(url).append("?workflow=").append(CgrailsConstants.WORKFLOW_OFFLINE);;
+				DefaultHttpClient httpClient = new DefaultHttpClient();
+				HttpGet getRequest = new HttpGet(urlBuilder.toString());
+				HttpResponse response = httpClient.execute(getRequest);				
+				String apiResponse = getResponseAsString(response, urlBuilder.toString(), false);
+				
+				modelsJSON.put("/" + appName + url, apiResponse);
+			}
+			
 			
 		}
 		preloadedModelBuffer.append(modelsJSON.toString(8));
@@ -161,7 +163,7 @@ class OfflineApplicationBuilder {
 	}
 
 	
-	public void createIndex(String skin, String mode) {
+	public void createSinglepageHtmls(String skin, String mode) {
 		
 		def singlepageController = grailsApplication.getArtefact("Controller", "com.compro.cgrails.SinglepageController")
 		def actions = new HashSet<String>()
@@ -187,7 +189,7 @@ class OfflineApplicationBuilder {
 		HttpGet getRequest = new HttpGet(urlBuilder.toString());
 		HttpResponse response = httpClient.execute(getRequest);
 		
-		String html = getResponseAsString(response, urlBuilder.toString());
+		String html = getResponseAsString(response, urlBuilder.toString(), true);
 		
 		InputStream contentStringStream = new ByteArrayInputStream(html.getBytes());
 		writeFile(contentStringStream, new File(OFFLINE_PACKAGE_DIR_PATH + targetFileName));
@@ -253,7 +255,7 @@ class OfflineApplicationBuilder {
 			
 			HttpResponse response = httpclient.execute(httppost);			
 			
-			template = getResponseAsString(response, urlBuilder.toString());			
+			template = getResponseAsString(response, urlBuilder.toString(), true);			
 			template = template.replace("\r\n", "").replace("\t", "");
 			jsonTemplate.put(templatename, template);
 		}
@@ -270,7 +272,7 @@ class OfflineApplicationBuilder {
 	 * @param requestUrl The URL of request.
 	 * @return HttpResponse as String.
 	 */
-	private getResponseAsString(HttpResponse response, String requestUrl) {
+	private getResponseAsString(HttpResponse response, String requestUrl, boolean addLineBreaks) {
 		if (response.getStatusLine().getStatusCode() != 200) {
 			throw new RuntimeException("Failed : HTTP error code : "  + response.getStatusLine().getStatusCode() + "for path:${requestUrl}");
 		}
@@ -281,7 +283,9 @@ class OfflineApplicationBuilder {
 		String output = new String();
 		while ((output = br.readLine()) != null) {
 			htmlContent.append(output);
-			htmlContent.append("\r\n");
+			if (addLineBreaks) {
+				htmlContent.append("\r\n");
+			}	
 		}
 		return htmlContent.toString()
 	}
