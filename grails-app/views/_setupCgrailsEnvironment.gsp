@@ -1,7 +1,7 @@
 <%@ page import="com.compro.cgrails.CgrailsUtils" %>
 <%@ page import="com.compro.cgrails.CgrailsConstants" %>
 
-<g:set var="appName"><g:meta name="app.name"/></g:set>
+<g:set var="contextPath" value="${request.contextPath.substring(1)}"/>
 <g:set var="workflow" value="${CgrailsUtils.getWorkflow()}"/>
 <g:set var="skin" value="${CgrailsUtils.getSkin()}"/>
 
@@ -9,7 +9,7 @@
 	var com = {
 		 compro : {
 			cgrails : {
-				APPLICATIONNAME : "${appName}",
+				APPLICATIONNAME : "${contextPath}",
 				WORKFLOW : "${workflow}",
 				SKIN : "${skin}"
 			}

@@ -38,9 +38,9 @@ class CgrailsTagLib {
 		if (CgrailsUtils.getWorkflow() == CgrailsConstants.WORKFLOW_OFFLINE) {
 			href = actionName + ".html"
 		} else {	
-			String appName = grailsApplication.metadata['app.name']
+			String ctxPath = request.contextPath
 			String currentSkin = CgrailsUtils.getSkin()
-			href = "/${appName}/${currentSkin}/singlepage/" + actionName
+			href = "${ctxPath}/${currentSkin}/singlepage/" + actionName
 		}
 		out << href
 	}
@@ -64,10 +64,10 @@ class CgrailsTagLib {
 		def fallbackSkin = skinningService.getCalculatedSkinForResource(filePath,currentSkin)
 		filePath = filePath.replaceFirst(currentSkin, fallbackSkin)
 		if (isDebugMode() && (CgrailsUtils.getWorkflow() != CgrailsConstants.WORKFLOW_OFFLINE)) {
-			String appName = grailsApplication.metadata['app.name']
+			String ctxPath = request.contextPath
 			// reference .less files directly (In browser, less.js will compile into CSS)
 			Long timestamp = System.currentTimeMillis()
-			out <<  "<link type='text/css' rel='stylesheet/less' href='/${appName}/${filePath}?_debugResources=y&n=$timestamp'/>"
+			out <<  "<link type='text/css' rel='stylesheet/less' href='${ctxPath}/${filePath}?_debugResources=y&n=$timestamp'/>"
 			out <<  r.external(uri : "${pluginContextPath }/${CgrailsConstants.LESS_SCRIPT_FILE_LOCATION}")
 			if (isAutoReloadLessChanges(attrs)) {
 				out << "<script type='text/javascript'>less.env = 'development';less.watch();</script>"
