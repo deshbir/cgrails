@@ -21,7 +21,7 @@ com.compro.cgrails.utils = (function ()
     		uri = resourceURI.substring(1);
     	}
         if(com.compro.cgrails.WORKFLOW != config.OFFLINE_WORKLFLOW_FLAG) {
-        	return "/" + com.compro.cgrails.APPLICATIONNAME + "/" + uri ;
+        	return com.compro.cgrails.REQUEST_CONTEXT + "/" + uri ;
         } else {
         	return uri ;
         }
