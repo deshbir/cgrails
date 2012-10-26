@@ -1,0 +1,23 @@
+D:\AndroidApp\AndroidApp\gen\com\compro\cgrails\androidapp\R.java \
+ : D:\AndroidApp\AndroidApp\res\drawable\icon.png \
+D:\AndroidApp\AndroidApp\res\drawable-hdpi\icon.png \
+D:\AndroidApp\AndroidApp\res\drawable-hdpi\ic_launcher.png \
+D:\AndroidApp\AndroidApp\res\drawable-ldpi\icon.png \
+D:\AndroidApp\AndroidApp\res\drawable-ldpi\ic_launcher.png \
+D:\AndroidApp\AndroidApp\res\drawable-mdpi\icon.png \
+D:\AndroidApp\AndroidApp\res\drawable-mdpi\ic_launcher.png \
+D:\AndroidApp\AndroidApp\res\drawable-xhdpi\icon.png \
+D:\AndroidApp\AndroidApp\res\drawable-xhdpi\ic_launcher.png \
+D:\AndroidApp\AndroidApp\res\layout\main.xml \
+D:\AndroidApp\AndroidApp\res\values\strings.xml \
+D:\AndroidApp\AndroidApp\res\xml\config.xml \
+D:\AndroidApp\AndroidApp\bin\res\drawable\icon.png \
+D:\AndroidApp\AndroidApp\bin\res\drawable-hdpi\icon.png \
+D:\AndroidApp\AndroidApp\bin\res\drawable-hdpi\ic_launcher.png \
+D:\AndroidApp\AndroidApp\bin\res\drawable-ldpi\icon.png \
+D:\AndroidApp\AndroidApp\bin\res\drawable-ldpi\ic_launcher.png \
+D:\AndroidApp\AndroidApp\bin\res\drawable-mdpi\icon.png \
+D:\AndroidApp\AndroidApp\bin\res\drawable-mdpi\ic_launcher.png \
+D:\AndroidApp\AndroidApp\bin\res\drawable-xhdpi\icon.png \
+D:\AndroidApp\AndroidApp\bin\res\drawable-xhdpi\ic_launcher.png \
+D:\AndroidApp\AndroidApp\bin\AndroidManifest.xml \

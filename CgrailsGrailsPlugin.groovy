@@ -57,6 +57,9 @@ Brief summary/description of the plugin.
 		airApplicationBuilder(com.compro.cgrails.service.AirApplicationBuilder){
 			it.autowire = true
 		}
+		androidApplicationBuilder(com.compro.cgrails.service.AndroidApplicationBuilder){
+			it.autowire = true
+		}
 	}
 
 	def doWithDynamicMethods = { ctx ->
