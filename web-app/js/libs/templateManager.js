@@ -18,7 +18,7 @@ TemplateManager =  {
 	 	} else {
 	 		var templateManagerRef = this;
 	 		$.ajax({
-	 			url: "/" + com.compro.cgrails.APPLICATIONNAME + "/cgrailstemplate/",
+	 			url: com.compro.cgrails.REQUEST_CONTEXT + "/cgrailstemplate/",
 	 			type: 'POST',
 		    	dataType: "html",
 		    	data: { 
