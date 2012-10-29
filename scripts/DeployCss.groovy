@@ -47,11 +47,11 @@ private generateRTLCSS(def argsMap, def Constants, def config) {
 private runCompileLess(def skinname, def Constants, def config){
 	def lessFileArray = config.cgrails.less.files
 	String cssDir = Constants.CGRAILS_CSS_FOLDER_LOCATION
-	lessFileArray.each {lessFilename->
-		String inputFilePath = "${cssDir}/${skinname}/${Constants.LESS_FOLDER_NAME}/${lessFilename}.less"
+	lessFileArray.each {lessFilepath->
+		String inputFilePath = "${cssDir}/${skinname}/${Constants.LESS_FOLDER_NAME}/${lessFilepath}.less"
 		File inputFile = new File(inputFilePath)
 		if(inputFile.exists()) {
-			String ouputFilePath = "${cssDir}/${skinname}/${lessFilename}.css"
+			String ouputFilePath = "${cssDir}/${skinname}/${Constants.LESS_FOLDER_NAME}/${lessFilepath}.css"
 			File ouputFile = new File(ouputFilePath)
 			if(ouputFile.exists()) {
 				ouputFile.delete()
@@ -72,11 +72,11 @@ private runCompileLess(def skinname, def Constants, def config){
 private runRTLCompileLess(def skinname, def Constants, def config){
 	String cssDir = Constants.CGRAILS_CSS_FOLDER_LOCATION
 	def cssFileArray = config.cgrails.less.files
-	cssFileArray.each {cssFileName->
-		String inputFilePath = "${cssDir}/${skinname}/${cssFileName}.css"
+	cssFileArray.each {cssFilepath->
+		String inputFilePath = "${cssDir}/${skinname}/${Constants.LESS_FOLDER_NAME}/${cssFilepath}.css"
 		File inputFile = new File(inputFilePath)
 		if(inputFile.exists()) {
-			String ouputFilePath = "${cssDir}/${skinname}/${cssFileName}-rtl.css"
+			String ouputFilePath = "${cssDir}/${skinname}/${Constants.LESS_FOLDER_NAME}/${cssFilepath}-rtl.css"
 			File ouputFile = new File(ouputFilePath)
 			if(ouputFile.exists()) {
 				ouputFile.delete()

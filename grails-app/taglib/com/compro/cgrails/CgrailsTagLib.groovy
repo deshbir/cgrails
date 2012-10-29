@@ -52,15 +52,13 @@ class CgrailsTagLib {
 		if (!src) {
 			throwTagError("Tag [less] is missing required attribute [src]")
 		}
-		String dir = "${CgrailsConstants.CGRAILS_CSS_PATH}/${currentSkin}"
 		if (isDebugMode() && (CgrailsUtils.getWorkflow() != CgrailsConstants.WORKFLOW_OFFLINE)) {
 			// reference .less files directly (In browser, less.js will compile into CSS)
 			fileType = '.less'
-			dir = "${dir}/${CgrailsConstants.LESS_FOLDER_NAME}"
 		} else {
 			fileType = '.css'
 		}
-		String filePath = "${dir}/${src}${fileType}"
+		String filePath = "${CgrailsConstants.CGRAILS_CSS_PATH}/${currentSkin}/${CgrailsConstants.LESS_FOLDER_NAME}/${src}${fileType}"
 		def fallbackSkin = skinningService.getCalculatedSkinForResource(filePath,currentSkin)
 		filePath = filePath.replaceFirst(currentSkin, fallbackSkin)
 		if (isDebugMode() && (CgrailsUtils.getWorkflow() != CgrailsConstants.WORKFLOW_OFFLINE)) {
@@ -83,13 +81,11 @@ class CgrailsTagLib {
 			throwTagError("Tag [less] is missing required attribute [src]")
 		}
 		src += "-rtl"
-		String fileType = '.css'
 		if (!src) {
 			throwTagError("Tag [less] is missing required attribute [src]")
 		}
 		String currentSkin = CgrailsUtils.getSkin()
-		String dir = "${CgrailsConstants.CGRAILS_CSS_PATH}/${currentSkin}"
-		String filePath = "${dir}/${src}${fileType}"
+		String filePath = "${CgrailsConstants.CGRAILS_CSS_PATH}/${currentSkin}/${CgrailsConstants.LESS_FOLDER_NAME}/${src}${fileType}"
 		def fallbackSkin = skinningService.getCalculatedSkinForResource(filePath,currentSkin)
 		filePath = filePath.replaceFirst(currentSkin, fallbackSkin)
 		out << r.external(uri : "/" + filePath)

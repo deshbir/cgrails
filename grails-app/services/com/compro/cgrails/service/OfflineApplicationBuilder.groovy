@@ -52,9 +52,9 @@ class OfflineApplicationBuilder {
 		}
 	}
 
-	private static FileFilter lessFileFilter = new FileFilter() {
+	private static FileFilter cssFileFilter = new FileFilter() {
 		public boolean accept(File file) {
-			return !file.getName().equals(CgrailsConstants.LESS_FOLDER_NAME);
+			return file.getName().contains(".css");
 		}
 	}
 	
@@ -140,25 +140,28 @@ class OfflineApplicationBuilder {
 		bufferWriter.close();
 	}
 	private void copyStyles(String skin) {
-		/****************************************************
-		 * STEP 1: Copy everything except cgrails folder.
-		 ****************************************************/
+		/*************************************************************
+		 * STEP 1: Copy everything inside css folder except cgrails folder.
+		 *************************************************************/
 		File src = new File(WEBAPP_DIR_NAME + "/" + CSS_DIR_NAME);
-		File dst = new File(OFFLINE_PACKAGE_DIR_PATH + CSS_DIR_NAME);
 		File[] files = src.listFiles(cgrailsFileFilter);
 		for(File file :  files){
-			File destFile = new File(OFFLINE_PACKAGE_DIR_PATH + CSS_DIR_NAME + "/" + file.getName());
+			String filePath = file.getPath();
+			filePath = filePath.replace(WEBAPP_DIR_NAME, OFFLINE_PACKAGE_DIR_PATH);
+			File destFile = new File(filePath);
 			copyDirectory(file, destFile);
 		}
 		/*****************************************
-		 * STEP 2: Copy only skin specific styles from cgrails folder(do not copy less files).
+		 * STEP 2: Copy all CSS files of a skin.
 		 ***************************************/
-		File skinDir = new File(WEBAPP_DIR_NAME + "/" + CSS_DIR_NAME + "/" + CgrailsConstants.CGRAILS + "/" + skin);
-		File[] skinFileSrc = skinDir.listFiles(lessFileFilter);
-		for(File file :  skinFileSrc){
-			File skinFileDest = new File(OFFLINE_PACKAGE_DIR_PATH + CSS_DIR_NAME + "/" + CgrailsConstants.CGRAILS + "/" + skin +
-				"/" + file.getName());
-			copyDirectory(file, skinFileDest);
+		File skinLessDir = new File(WEBAPP_DIR_NAME + "/" + CSS_DIR_NAME + "/" 
+										+ CgrailsConstants.CGRAILS + "/" + skin + "/less");
+		File[] cssFileSrc = skinLessDir.listFiles(cssFileFilter);
+		for(File file :  cssFileSrc){
+			String filePath = file.getPath();
+			filePath = filePath.replace(WEBAPP_DIR_NAME, OFFLINE_PACKAGE_DIR_PATH);
+			File cssDestFile = new File(filePath);
+			copyDirectory(file, cssDestFile);
 		}
 	}
 
