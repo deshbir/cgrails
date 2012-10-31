@@ -85,7 +85,7 @@ class CgrailsTagLib {
 			throwTagError("Tag [less] is missing required attribute [src]")
 		}
 		String currentSkin = CgrailsUtils.getSkin()
-		String filePath = "${CgrailsConstants.CGRAILS_CSS_PATH}/${currentSkin}/${CgrailsConstants.LESS_FOLDER_NAME}/${src}${fileType}"
+		String filePath = "${CgrailsConstants.CGRAILS_CSS_PATH}/${currentSkin}/${CgrailsConstants.LESS_FOLDER_NAME}/${src}.css"
 		def fallbackSkin = skinningService.getCalculatedSkinForResource(filePath,currentSkin)
 		filePath = filePath.replaceFirst(currentSkin, fallbackSkin)
 		out << r.external(uri : "/" + filePath)
