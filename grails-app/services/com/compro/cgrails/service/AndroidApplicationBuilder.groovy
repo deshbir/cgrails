@@ -51,17 +51,20 @@ class AndroidApplicationBuilder {
 		Process p = builder.start();
 		BufferedReader stdInput = new BufferedReader(new
 			  InputStreamReader(p.getInputStream()));
+		String input;
+		while ((input = stdInput.readLine()) != null) {
+			  System.out.println(input)
+		}
 
-		 BufferedReader stdError = new BufferedReader(new
+		BufferedReader stdError = new BufferedReader(new
 			  InputStreamReader(p.getErrorStream()));
 
-			 String s = null;
-			 // read any errors from the attempted command
-			 while ((s = stdError.readLine()) != null) {
-				 System.out.println(s)
-			 }
-			 //tempAirOffline.deleteDir()
+		String s = null;
+		 // read any errors from the attempted command
+		while ((s = stdError.readLine()) != null) {
+			 System.out.println(s)
 		}
+	}
 	
 	public void deleteOldPackage() {
 		File sourceFile = new File(OfflineApplicationBuilder.TARGET_OFFLINE_DIR_PATH + ANDROID_DIR_PATH)
