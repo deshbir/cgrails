@@ -1,6 +1,8 @@
 package  com.compro.cgrails.service
 
-import com.compro.cgrails.CgrailsConstants
+import java.util.zip.ZipEntry
+import java.util.zip.ZipOutputStream
+
 
 
 
@@ -14,7 +16,7 @@ class AppjsApplicationBuilder {
 	private static final String APP_JS_CONTENT_DIR = "content"
 	
 	
-	public void generateAppjs(String pluginDir,String pluginVersion, String debug) {
+	public void generateAppjs(String pluginDir,String pluginVersion) {
 		File offlineSource = new File(pluginDir + "/" + OfflineApplicationBuilder.OFFLINE_APP_DIR_PATH + APP_JS_DIR_PATH)
 		File appjsTargetDir = new File(OfflineApplicationBuilder.TARGET_OFFLINE_DIR_PATH + APP_JS_DIR_PATH);
 		
@@ -33,5 +35,7 @@ class AppjsApplicationBuilder {
 		File sourceFile = new File(OfflineApplicationBuilder.TARGET_OFFLINE_DIR_PATH + APP_JS_DIR_PATH)
 		sourceFile.deleteDir();
 	}
+	
+	
 
 }

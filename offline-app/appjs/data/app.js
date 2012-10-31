@@ -3,8 +3,8 @@ var app = module.exports = require('appjs');
 app.serveFilesFrom(__dirname + '/content');
 
 var window = app.createWindow({
-  width  : 640,
-  height : 460,
+  width  : 800,
+  height : 600,
   icons  : __dirname + '/content/icons'
 });
 
@@ -20,14 +20,18 @@ window.on('ready', function(){
   window.process = process;
   window.module = module;
 
-  function F12(e){ return e.keyIdentifier === 'F12' }
-  function Command_Option_J(e){ return e.keyCode === 74 && e.metaKey && e.altKey }
+  // function F12(e){ return e.keyIdentifier === 'F12' }
+  // function Command_Option_J(e){ return e.keyCode === 74 && e.metaKey && e.altKey }
 
-  window.addEventListener('keydown', function(e){
-    if (F12(e) || Command_Option_J(e)) {
-      window.frame.openDevTools();
-    }
-  });
+  // window.addEventListener('keydown', function(e){
+    // if (F12(e) || Command_Option_J(e)) {
+      // window.frame.openDevTools();
+    // }
+  // });
+  window.addEventListener('contextmenu', function(evt){
+	evt.preventDefault();
+		// custom menu stuff here, or nothing for no menu
+	});
 });
 
 window.on('close', function(){

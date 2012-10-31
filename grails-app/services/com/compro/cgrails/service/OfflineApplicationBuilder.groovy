@@ -117,9 +117,11 @@ class OfflineApplicationBuilder {
 			for (String url : cachedUrls) {
 				def urlBuilder = new StringBuilder("http://");
 				urlBuilder.append(APP_HOST).append(":").append(APP_PORT).append("/")
-				.append(appName).append(url).append("?workflow=").append(CgrailsConstants.WORKFLOW_OFFLINE);;
+				.append(appName).append(url);
+				url = urlBuilder.toString();
+				url += (url.indexOf('?') >= 0) ? "&workflow=" + CgrailsConstants.WORKFLOW_OFFLINE : "?workflow=" + CgrailsConstants.WORKFLOW_OFFLINE
 				DefaultHttpClient httpClient = new DefaultHttpClient();
-				HttpGet getRequest = new HttpGet(urlBuilder.toString());
+				HttpGet getRequest = new HttpGet(url);
 				HttpResponse response = httpClient.execute(getRequest);				
 				String apiResponse = getResponseAsString(response, urlBuilder.toString(), false);
 				
