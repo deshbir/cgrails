@@ -21,7 +21,7 @@ class OfflineApplicationBuilder {
 	static final String TARGET_OFFLINE_DIR_PATH = "target/offline/"
 	private static final String OFFLINE_CORE_DIR_PATH = "core/"
 	static final String OFFLINE_PACKAGE_DIR_PATH = TARGET_OFFLINE_DIR_PATH + OFFLINE_CORE_DIR_PATH	
-	static final String OFFLINE_APP_DIR_PATH = "offline-app/"	
+	static final String OFFLINE_APP_DIR_PATH = "web-app/offline-app/"	
 	private static final String WEBAPP_DIR_NAME = "web-app"	
 	private static final String PAGES_DIR_PATH = "grails-app/views/pages/"	
 	private static final String JAVSCRIPT_DIR_NAME = "js"
