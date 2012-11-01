@@ -1,10 +1,10 @@
 package  com.compro.cgrails.service
 
 
-import grails.converters.JSON
 import grails.util.GrailsUtil
 import net.sf.json.JSONObject
 
+import org.apache.commons.io.IOUtils
 import org.apache.http.HttpResponse
 import org.apache.http.NameValuePair
 import org.apache.http.client.HttpClient
@@ -34,10 +34,11 @@ class OfflineApplicationBuilder {
 	private static final String PRELOADED_TEMPLATES_JS_PATH = "/offline/core/preloaded_templates.js"
 	private static final String PRELOADED_MODELS_JS_PATH = "/offline/core/preloaded_model.js"	
 	private static final String APP_HOST = "localhost"
-	private static final String APP_PORT = "8080"
-
+	private static final String APP_PORT = "8080"	
 	
-	
+	/***************************************
+	 * AutoWiring grailsApplication instance 
+	 ***************************************/ 
 	def grailsApplication
 	
 	private static FileFilter cgrailsFileFilter = new FileFilter() {
@@ -58,33 +59,213 @@ class OfflineApplicationBuilder {
 		}
 	}
 	
-	public void copyScripts(String pluginDir, String pluginVersion) {
-		
-		//Copying offline Javascripts required from plugin
-		File offlineJSsource = new File(pluginDir + "/" + WEBAPP_DIR_NAME + "/" +JAVSCRIPT_DIR_NAME + "/offline/core");
-			
+	/***********************************************************************
+	 * Function to delete older Offline package (if any) in the application.
+	 ***********************************************************************/
+	public void deleteOldPackage() {
+		File sourceFile = new File(OFFLINE_PACKAGE_DIR_PATH)
+		sourceFile.deleteDir();
+	}
+	
+	/***********************************************************************
+	 * Function to copy required JavaScript files in the Offline package.
+	 ***********************************************************************/
+	public void copyScripts(String pluginDir, String pluginVersion) {		
+		/******************************************************************************
+		 * Copying required JavaScript files from cgrails plugin in the Offline package
+		 ******************************************************************************/
+		File offlineJSsource = new File(pluginDir + "/" + WEBAPP_DIR_NAME + "/" +JAVSCRIPT_DIR_NAME + "/offline/core");			
 		File targetOfflineJSfolder = new File(OFFLINE_PACKAGE_DIR_PATH + "plugins/" +
 			CgrailsConstants.CGRAILS + "-" + pluginVersion + "/" + JAVSCRIPT_DIR_NAME + "/offline/core");
-		copyDirectory(offlineJSsource, targetOfflineJSfolder);
+		copyDirectory(offlineJSsource, targetOfflineJSfolder);		
 		
-		//Copying libs Javascripts required from plugin
 		File cgrailsLibsJSsource = new File(pluginDir + "/" + WEBAPP_DIR_NAME + "/" + JAVSCRIPT_DIR_NAME + "/libs");
 		File targetLibsJSfolder = new File(OFFLINE_PACKAGE_DIR_PATH + "plugins/" +
 			CgrailsConstants.CGRAILS + "-" + pluginVersion + "/" + JAVSCRIPT_DIR_NAME + "/libs");
 		copyDirectory(cgrailsLibsJSsource, targetLibsJSfolder);
 		
+		/******************************************************************************
+		 * Copying required JavaScript files from application in the Offline package
+		 ******************************************************************************/
 		File src = new File(WEBAPP_DIR_NAME + "/" + JAVSCRIPT_DIR_NAME);
 		File dst = new File(OFFLINE_PACKAGE_DIR_PATH + JAVSCRIPT_DIR_NAME);
 		copyDirectory(src, dst);
 	}
 	
+	/***********************************************************************
+	 * Function to copy required image files in the Offline package.
+	 ***********************************************************************/
 	public void copyImages() {
 		File src = new File(WEBAPP_DIR_NAME + "/" + IMAGES_DIR_NAME);
 		File dst = new File(OFFLINE_PACKAGE_DIR_PATH + IMAGES_DIR_NAME);
 		copyDirectory(src, dst);
 	}
 	
-	private void createPreloadedModel(String pluginVersion) {
+	/***********************************************************************
+	 * Function to copy required CSS files in the Offline package.
+	 ***********************************************************************/
+	public void copyStyles(String skin) {
+		/*************************************************************
+		 * STEP 1: Copy everything inside css folder except cgrails folder.
+		 *************************************************************/
+		File src = new File(WEBAPP_DIR_NAME + "/" + CSS_DIR_NAME);
+		File[] files = src.listFiles(cgrailsFileFilter);
+		for(File file :  files){
+			String filePath = file.getPath();
+			filePath = filePath.replace(WEBAPP_DIR_NAME, OFFLINE_PACKAGE_DIR_PATH);
+			File destFile = new File(filePath);
+			copyDirectory(file, destFile);
+		}
+		/*****************************************
+		 * STEP 2: Copy all CSS files of a skin.
+		 ***************************************/
+		File skinLessDir = new File(WEBAPP_DIR_NAME + "/" + CSS_DIR_NAME + "/"
+										+ CgrailsConstants.CGRAILS + "/" + skin + "/less");
+		File[] cssFileSrc = skinLessDir.listFiles(cssFileFilter);
+		for(File file :  cssFileSrc){
+			String filePath = file.getPath();
+			filePath = filePath.replace(WEBAPP_DIR_NAME, OFFLINE_PACKAGE_DIR_PATH);
+			File cssDestFile = new File(filePath);
+			copyDirectory(file, cssDestFile);
+		}
+	}
+	
+	/***********************************************************************
+	 * Function to create HTML(s) for all the singlepage modules in the offline package.
+	 ***********************************************************************/
+	public void createSinglepageHtmls(String skin, String locale, String mode) {
+		//Reading "SinglepageController" inside application	
+		def singlepageController = grailsApplication.getArtefact("Controller", "com.compro.cgrails.SinglepageController")
+		
+		//Get all the actions of "SinglepageController"
+		def actions = new HashSet<String>()
+		for (String uri : singlepageController.uris ) {
+			actions.add(singlepageController.getMethodActionName(uri))
+		}
+		
+		//Create HTML for every action. The name of HTML is same as action name.
+		Iterator actionsIter = actions.iterator();		
+		while(actionsIter.hasNext()) {
+		  String actionName = actionsIter.next();
+		  writeSinglePage(actionName, actionName + ".html", skin, locale, mode);
+		}
+	}
+
+	
+	/***********************************************************************
+	 * Function to request SinglePage HTML and write response as HTML to disk.
+	 ***********************************************************************/
+	private void writeSinglePage(String pageName, String targetFileName, String skin, String locale, String mode) {
+		def urlBuilder = new StringBuilder("http://");
+		urlBuilder.append(APP_HOST).append(":").append(APP_PORT).append("/").append(grailsApplication.metadata['app.name']);
+		urlBuilder.append("/").append(skin).append("/singlepage/").append(pageName)
+		.append("?workflow=").append(CgrailsConstants.WORKFLOW_OFFLINE)
+		.append("&lang=").append(locale);
+		if(mode == "debugAir"){
+			urlBuilder.append('&mode=debugAir');
+		}
+		
+		//Request SinglePage Module
+		DefaultHttpClient httpClient = new DefaultHttpClient();
+		HttpGet getRequest = new HttpGet(urlBuilder.toString());		
+		HttpResponse response = httpClient.execute(getRequest);
+		
+		//Validate HTML response
+		validateResponse(response, urlBuilder.toString());
+		
+		//Write response as HTML to disk
+		writeFile(response.getEntity().getContent(), new File(OFFLINE_PACKAGE_DIR_PATH + targetFileName));
+	}
+	
+	/***********************************************************************
+	 * Function to pre-load templates in Offline package.
+	 * Create a JavaScript file which contains all the templates as JSON.
+	 ***********************************************************************/
+	public void preloadTemplates(String skin, String locale, String pluginVersion) {
+		def classLoader = Thread.currentThread().contextClassLoader
+		def config = new ConfigSlurper(GrailsUtil.environment).parse(classLoader.loadClass(CGRAILS_CONFIG_FILE_NAME))
+		Boolean isConfigurable = config.cgrails.templates.useConfiguration
+		Set<String> templateList
+		
+		/************************************************************************
+		 * If configurable, Get the list of templates from configuration file.
+		 * Else, get the list of templates by fetching list from "templates" folder.
+		 *************************************************************************/
+		if(isConfigurable) {
+			templateList = new HashSet(config.cgrails.templates.templateList);
+		} else {
+			templateList = getRequiredTemplates(skin, config);
+		}
+		
+		JSONObject jsonTemplate = new JSONObject();
+		String template;
+		for (String templatename :  templateList) {
+			def urlBuilder = new StringBuilder("http://");
+			urlBuilder.append(APP_HOST).append(":").append(APP_PORT).append("/")
+				.append(grailsApplication.metadata['app.name']).append("/cgrailstemplate/?workflow=")
+				.append(CgrailsConstants.WORKFLOW_OFFLINE)
+				.append("&lang=").append(locale);
+			
+			HttpClient httpclient = new DefaultHttpClient();
+			HttpPost httppost = new HttpPost(urlBuilder.toString());
+			List<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>(2);
+			nameValuePairs.add(new BasicNameValuePair("skin", skin));
+			nameValuePairs.add(new BasicNameValuePair("path", TEMPLATES_FOLDER_NAME + "/" + templatename));
+			httppost.setEntity(new UrlEncodedFormEntity(nameValuePairs));
+			
+			//Request a template
+			HttpResponse response = httpclient.execute(httppost);
+			
+			//Get template response as String
+			template = getResponseAsString(response, urlBuilder.toString(), true);
+			template = template.replace("\r\n", "").replace("\t", "");
+			jsonTemplate.put(templatename, template);
+		}
+		String contentString = "com.compro.cgrails.OfflineTemplates = " + jsonTemplate.toString(8);
+				
+		//Write templates as JSON object to file.
+		writeFile(contentString, new File(OFFLINE_PACKAGE_DIR_PATH + "plugins/" +
+							CgrailsConstants.CGRAILS + "-" + pluginVersion + "/"
+							 + JAVSCRIPT_DIR_NAME + PRELOADED_TEMPLATES_JS_PATH) );
+	}
+	
+	private Set<String> getRequiredTemplates(String skin, def config){
+		Set<String> templateList = new HashSet<String>();
+		getTemplatesInSkin(config,skin,templateList)
+		return templateList;
+	}
+	private void getTemplatesInSkin(def config, String currentSkin, Set<String> templateList){
+		if(currentSkin != config.cgrails.skinning.baseskin){
+			String parentSkin = config.cgrails.skinning.skins."${currentSkin}".parent
+			getTemplatesInSkin(config, parentSkin,templateList);
+			File templateDir  = new File(PAGES_DIR_PATH + currentSkin + "/" + TEMPLATES_FOLDER_NAME);
+			getFileList(templateDir, templateList);
+		} else {
+			File templateDir  = new File(PAGES_DIR_PATH + currentSkin + "/" + TEMPLATES_FOLDER_NAME);
+			getFileList(templateDir, templateList);
+		}
+	}
+	private void getFileList(File dir, Set<String> fileList) {
+		File[] children = dir.listFiles(svnFileFilter);
+		for (File file : children) {
+			if (file.isDirectory()) {
+				getFileList(file,fileList);
+			} else {
+				String templatesPath = TEMPLATES_FOLDER_NAME + "\\"
+				String path = file.getPath();
+				path = path.substring(path.indexOf(templatesPath) + templatesPath.length());
+				path = path.substring(0, path.indexOf(".gsp"));
+				path = path.replace("\\", "/");
+				fileList.add(path);
+			}
+		}
+	}
+	
+	/***********************************************************************
+	 * Function to pre-load models in Offline package.
+	 * Create a JavaScript file which contains all the model data as JSON.
+	 ***********************************************************************/
+	private void preloadModel(String pluginVersion) {
 		def classLoader = Thread.currentThread().contextClassLoader
 		def config = new ConfigSlurper(GrailsUtil.environment).parse(classLoader.loadClass(CGRAILS_CONFIG_FILE_NAME))
 		String javascriptmvc = config.cgrails.javascriptMVC
@@ -94,10 +275,8 @@ class OfflineApplicationBuilder {
 	}
 	
 	private void createBacbonePreloadedModel(String pluginVersion) {
-		String appName = grailsApplication.metadata['app.name']
-		
-		def preloadedModelBuffer = new StringBuffer();
-		
+		String appName = grailsApplication.metadata['app.name']		
+		def preloadedModelBuffer = new StringBuffer();		
 		preloadedModelBuffer.append("com.compro.cgrails.PreloadedModel = ");
 		
 		JSONObject modelsJSON = new JSONObject();
@@ -141,135 +320,11 @@ class OfflineApplicationBuilder {
 		bufferWriter.write(preloadedModelBuffer.toString());
 		bufferWriter.close();
 	}
-	private void copyStyles(String skin) {
-		/*************************************************************
-		 * STEP 1: Copy everything inside css folder except cgrails folder.
-		 *************************************************************/
-		File src = new File(WEBAPP_DIR_NAME + "/" + CSS_DIR_NAME);
-		File[] files = src.listFiles(cgrailsFileFilter);
-		for(File file :  files){
-			String filePath = file.getPath();
-			filePath = filePath.replace(WEBAPP_DIR_NAME, OFFLINE_PACKAGE_DIR_PATH);
-			File destFile = new File(filePath);
-			copyDirectory(file, destFile);
-		}
-		/*****************************************
-		 * STEP 2: Copy all CSS files of a skin.
-		 ***************************************/
-		File skinLessDir = new File(WEBAPP_DIR_NAME + "/" + CSS_DIR_NAME + "/" 
-										+ CgrailsConstants.CGRAILS + "/" + skin + "/less");
-		File[] cssFileSrc = skinLessDir.listFiles(cssFileFilter);
-		for(File file :  cssFileSrc){
-			String filePath = file.getPath();
-			filePath = filePath.replace(WEBAPP_DIR_NAME, OFFLINE_PACKAGE_DIR_PATH);
-			File cssDestFile = new File(filePath);
-			copyDirectory(file, cssDestFile);
-		}
-	}
-
 	
-	public void createSinglepageHtmls(String skin, String mode) {
-		
-		def singlepageController = grailsApplication.getArtefact("Controller", "com.compro.cgrails.SinglepageController")
-		def actions = new HashSet<String>()
-		for (String uri : singlepageController.uris ) {
-			actions.add(singlepageController.getMethodActionName(uri))
-		}		
-		Iterator actionsIter = actions.iterator();	   
-		while(actionsIter.hasNext()) {
-		  String actionName = actionsIter.next();
-		  writePage(actionName, actionName + ".html", skin, mode);
-	  	}
-	}
-
-    private writePage(String pageName, String targetFileName, String skin, String mode) {
-		def urlBuilder = new StringBuilder("http://");
-		urlBuilder.append(APP_HOST).append(":").append(APP_PORT).append("/").append(grailsApplication.metadata['app.name']);
-		urlBuilder.append("/").append(skin).append("/singlepage/").append(pageName)
-		.append("?workflow=").append(CgrailsConstants.WORKFLOW_OFFLINE);
-		if(mode == "debugAir"){
-			urlBuilder.append('&mode=debugAir');
-		}
-		DefaultHttpClient httpClient = new DefaultHttpClient();
-		HttpGet getRequest = new HttpGet(urlBuilder.toString());
-		HttpResponse response = httpClient.execute(getRequest);
-		
-		String html = getResponseAsString(response, urlBuilder.toString(), true);
-		
-		InputStream contentStringStream = new ByteArrayInputStream(html.getBytes());
-		writeFile(contentStringStream, new File(OFFLINE_PACKAGE_DIR_PATH + targetFileName));
-	}
 	
-	private Set<String> getRequiredTemplates(String skin, def config){
-		Set<String> templateList = new HashSet<String>();
-		getTemplatesInSkin(config,skin,templateList)
-		return templateList;
-	}
-	private void getTemplatesInSkin(def config, String currentSkin, Set<String> templateList){
-		if(currentSkin != config.cgrails.skinning.baseskin){
-			String parentSkin = config.cgrails.skinning.skins."${currentSkin}".parent
-			getTemplatesInSkin(config, parentSkin,templateList);
-			File templateDir  = new File(PAGES_DIR_PATH + currentSkin + "/" + TEMPLATES_FOLDER_NAME);
-			getFileList(templateDir, templateList);
-		} else {
-			File templateDir  = new File(PAGES_DIR_PATH + currentSkin + "/" + TEMPLATES_FOLDER_NAME);
-			getFileList(templateDir, templateList);
-		}
-	}
-	private void getFileList(File dir, Set<String> fileList) {
-		File[] children = dir.listFiles(svnFileFilter);
-		for (File file : children) {
-			if (file.isDirectory()) {
-				getFileList(file,fileList);
-			} else {
-				String templatesPath = TEMPLATES_FOLDER_NAME + "\\"
-				String path = file.getPath();
-				path = path.substring(path.indexOf(templatesPath) + templatesPath.length());
-				path = path.substring(0, path.indexOf(".gsp"));
-				path = path.replace("\\", "/");
-				fileList.add(path);
-			}
-		}
-	}
-		
-	
-	public void createPreloaderTemplate(String skin, String pluginVersion) {
-		def classLoader = Thread.currentThread().contextClassLoader
-		def config = new ConfigSlurper(GrailsUtil.environment).parse(classLoader.loadClass(CGRAILS_CONFIG_FILE_NAME))
-		Boolean isConfigurable = config.cgrails.templates.useConfiguration
-		Set<String> templateList
-		if(isConfigurable) {
-			templateList = new HashSet(config.cgrails.templates.templateList);
-		} else {
-			templateList = getRequiredTemplates(skin, config);
-		}
-		JSONObject jsonTemplate = new JSONObject();
-		String template;
-		for (String templatename :  templateList) {
-			def urlBuilder = new StringBuilder("http://");
-			urlBuilder.append(APP_HOST).append(":").append(APP_PORT).append("/")
-				.append(grailsApplication.metadata['app.name']).append("/cgrailstemplate/?workflow=")
-				.append(CgrailsConstants.WORKFLOW_OFFLINE);
-			
-			HttpClient httpclient = new DefaultHttpClient();
-			HttpPost httppost = new HttpPost(urlBuilder.toString());
-			List<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>(2);
-			nameValuePairs.add(new BasicNameValuePair("skin", skin));
-			nameValuePairs.add(new BasicNameValuePair("path", TEMPLATES_FOLDER_NAME + "/" + templatename));
-			httppost.setEntity(new UrlEncodedFormEntity(nameValuePairs));
-			
-			HttpResponse response = httpclient.execute(httppost);			
-			
-			template = getResponseAsString(response, urlBuilder.toString(), true);			
-			template = template.replace("\r\n", "").replace("\t", "");
-			jsonTemplate.put(templatename, template);
-		}
-		String contentString = "com.compro.cgrails.OfflineTemplates = " + jsonTemplate.toString(8);
-		InputStream contentStringStream = new ByteArrayInputStream(contentString.getBytes());
-		writeFile(contentStringStream, new File(OFFLINE_PACKAGE_DIR_PATH + "plugins/" +
-							CgrailsConstants.CGRAILS + "-" + pluginVersion + "/"
-							 + JAVSCRIPT_DIR_NAME + PRELOADED_TEMPLATES_JS_PATH) );
-	}
+	/***************************************
+	 * UTILITY FUNCTIONS
+	 ******************************************/
 	
 	/**
 	 * Utility method to get Http response as a string.
@@ -277,29 +332,16 @@ class OfflineApplicationBuilder {
 	 * @param requestUrl The URL of request.
 	 * @return HttpResponse as String.
 	 */
-	private getResponseAsString(HttpResponse response, String requestUrl, boolean addLineBreaks) {
+	private String getResponseAsString(HttpResponse response, String requestUrl, boolean addLineBreaks) {
+		validateResponse(response, requestUrl);
+		return IOUtils.toString(response.getEntity().getContent(), "UTF-8");		
+	}
+	
+	private void validateResponse(HttpResponse response, String requestUrl) {
 		if (response.getStatusLine().getStatusCode() != 200) {
 			throw new RuntimeException("Failed : HTTP error code : "  + response.getStatusLine().getStatusCode() + "for path:${requestUrl}");
 		}
-		BufferedReader br = new BufferedReader(
-							 new InputStreamReader((response.getEntity().getContent())));
-
-		StringBuffer htmlContent = new StringBuffer();
-		String output = new String();
-		while ((output = br.readLine()) != null) {
-			htmlContent.append(output);
-			if (addLineBreaks) {
-				htmlContent.append("\r\n");
-			}	
-		}
-		return htmlContent.toString()
-	}
-	
-	
-	public void deleteOldPackage() {
-		File sourceFile = new File(OFFLINE_PACKAGE_DIR_PATH)
-		sourceFile.deleteDir();
-	}
+	}	
 	
 	void copyDirectory(File sourceFile, File targetFile) {
 		if (sourceFile.isDirectory()) {
@@ -320,20 +362,39 @@ class OfflineApplicationBuilder {
 				if (!targetFile.getParentFile().exists()) {
 					targetFile.getParentFile().mkdirs();
 				}
-				writeFile(new FileInputStream(sourceFile), targetFile);
+				FileInputStream inputStream = new FileInputStream(sourceFile);
+				OutputStream outputStream = new FileOutputStream(targetFile);
+				byte[] buf = new byte[1024];
+				int len;
+				while ((len = inputStream.read(buf)) > 0) {
+					outputStream.write(buf, 0, len);
+				}
+				inputStream.close();
+				outputStream.close();
 			}
 		}
 	}
 	
 	private void writeFile(InputStream inputStream, File targetFile){
 		targetFile.getParentFile().mkdirs();
-		OutputStream outputStream = new FileOutputStream(targetFile);
-		byte[] buf = new byte[1024];
-		int len;
-		while ((len = inputStream.read(buf)) > 0) {
-			outputStream.write(buf, 0, len);
-		}
-		inputStream.close();
-		outputStream.close();
+		BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream, "UTF-8"));		
+			
+		BufferedWriter writer = new BufferedWriter(new OutputStreamWriter (
+														new FileOutputStream(targetFile), "UTF-8"));															
+		int c = 1024;
+		while ((c = reader.read()) != -1) {
+			writer.write(c);
+		}			
+		reader.close();
+		writer.close();
+	}
+	
+	private void writeFile(String inputString, File targetFile){
+		targetFile.getParentFile().mkdirs();
+			
+		BufferedWriter writer = new BufferedWriter(new OutputStreamWriter (
+														new FileOutputStream(targetFile), "UTF-8"));
+		writer.write(inputString);
+		writer.close();
 	}
 }

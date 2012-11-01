@@ -27,7 +27,7 @@ target(generate: "Generates Offline version of the application") {
 	def classLoader = Thread.currentThread().contextClassLoader
 	classLoader.addURL(new File(classesDirPath).toURI().toURL())
 	def config = new ConfigSlurper(GrailsUtil.environment).parse(classLoader.loadClass('CgrailsConfig'))
-	String skin;
+	String skin;	
 	if(argsMap.skin) {
 		skin = argsMap.skin
 		if(!config.cgrails.skinning.skins."${skin}") {
@@ -40,6 +40,10 @@ target(generate: "Generates Offline version of the application") {
 		argsMap.skin = skin
 	}	
 	
+	String locale = "en";
+	if(argsMap.locale) {
+		locale = argsMap.locale;
+	}	
 	
    String pluginVersion = pluginSettings.getPluginInfo("${cgrailsPluginDir}").getVersion()
    depends(isServerRunning)
@@ -60,14 +64,14 @@ target(generate: "Generates Offline version of the application") {
    grailsConsole.updateStatus "Copying CSS files.....";
    offlineApplicationBuilder.copyStyles(skin);
    grailsConsole.updateStatus "Successfully copied CSS files.....";
-   grailsConsole.updateStatus "Creating Index HTML.....";
-    offlineApplicationBuilder.createSinglepageHtmls(skin, argsMap.mode);
-   grailsConsole.updateStatus "Successfully created Index HTML.....";
+   grailsConsole.updateStatus "Creating Singlepage HTML(s).....";
+    offlineApplicationBuilder.createSinglepageHtmls(skin, locale, argsMap.mode);
+   grailsConsole.updateStatus "Successfully created Singlepage HTML(s).....";
    grailsConsole.updateStatus "Creating preloaded templates file.....";
-   offlineApplicationBuilder.createPreloaderTemplate(skin, pluginVersion);
+   offlineApplicationBuilder.preloadTemplates(skin, locale, pluginVersion);
    grailsConsole.updateStatus "Successfully created preloaded templates file.....";
    grailsConsole.updateStatus "Creating preloaded model file.....";
-   offlineApplicationBuilder.createPreloadedModel(pluginVersion);
+   offlineApplicationBuilder.preloadModel(pluginVersion);
    grailsConsole.updateStatus "Successfully created preloaded model file.....";
    grailsConsole.updateStatus "Offline version successfully generated for " + skin + " skin.....";
 }
