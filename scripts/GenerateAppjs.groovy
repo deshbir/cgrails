@@ -16,9 +16,12 @@ target(appjs: "Generates Offline Appjs version of the application") {
   
    grailsConsole.updateStatus "Successfully Cleaned older Appjs package.....";
    grailsConsole.updateStatus "Creating Appjs package......";
-   
-   appjsApplicationBuilder.generateAppjs("${cgrailsPluginDir}", pluginVersion, argsMap.debug)
-   
+   grailsConsole.updateStatus "Generating zip file for Windows";
+   appjsApplicationBuilder.generateWindowsAppjs("${cgrailsPluginDir}", pluginVersion)
+   grailsConsole.updateStatus "Windows package for offline application succesfully zipped";
+   grailsConsole.updateStatus "Generating zip file for Mac OS";
+   appjsApplicationBuilder.generateMacAppjs("${cgrailsPluginDir}", pluginVersion)
+   grailsConsole.updateStatus "Mac OS package for offline application succesfully zipped";
    grailsConsole.updateStatus "Successfully created Appjs package.....";
    grailsConsole.updateStatus "Appjs offline version successfully generated.....";
    
