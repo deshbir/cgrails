@@ -16,8 +16,8 @@ class AppjsApplicationBuilder {
 	private static final String APP_JS_CONTENT_DIR = "content"
 	private static final String APP_JS_WINDOW_DIR = "windows"
 	private static final String APP_JS_MAC_DIR = "mac_os"
-	private static final String MAC_OS_ZIP_NAME = "mm-macosx-offline.zip"
-	private static final String WINDOW_ZIP_NAME = "mm-win32-offline.zip"
+	private static final String MAC_OS_ZIP_NAME = "-macosx-offline.zip"
+	private static final String WINDOW_ZIP_NAME = "-win32-offline.zip"
 	private static final int BYTE_BUFFER_SIZE_1024 = 1024;
 	private static final boolean INGNORE_ROOT_FOLDER = true;
 	
@@ -30,10 +30,11 @@ class AppjsApplicationBuilder {
 		
 		File offlineCoreSource = new File(OfflineApplicationBuilder.OFFLINE_PACKAGE_DIR_PATH);
 		File appjsWindowContentDir = new File(appjsWindowTargetDir.getPath() + "/data/" + APP_JS_CONTENT_DIR);
-		
+		def applicationName = grailsApplication.metadata['app.name']
+		def zipDir = applicationName + WINDOW_ZIP_NAME
 		//copy offline package to windows app js content dir
 		OfflineApplicationBuilder.copyDirectory(offlineCoreSource, appjsWindowContentDir);
-		zipFolder(appjsWindowTargetDir.getPath(), OfflineApplicationBuilder.TARGET_OFFLINE_DIR_PATH + APP_JS_DIR_PATH + WINDOW_ZIP_NAME)
+		zipFolder(appjsWindowTargetDir.getPath(), OfflineApplicationBuilder.TARGET_OFFLINE_DIR_PATH + APP_JS_DIR_PATH + zipDir)
 	}
 	
 	public void generateMacAppjs(String pluginDir,String pluginVersion) {
@@ -45,10 +46,11 @@ class AppjsApplicationBuilder {
 		
 		File offlineCoreSource = new File(OfflineApplicationBuilder.OFFLINE_PACKAGE_DIR_PATH);
 		File appjsMacContentDir = new File(appjsMacTargetDir.getPath() + "/data/" + APP_JS_CONTENT_DIR);
-		
+		def applicationName = grailsApplication.metadata['app.name']
+		def zipDir = applicationName + MAC_OS_ZIP_NAME
 		//copy offline package to mac app js content dir
 		OfflineApplicationBuilder.copyDirectory(offlineCoreSource, appjsMacContentDir);
-		zipFolder(appjsMacTargetDir.getPath(),OfflineApplicationBuilder.TARGET_OFFLINE_DIR_PATH + APP_JS_DIR_PATH + MAC_OS_ZIP_NAME)
+		zipFolder(appjsMacTargetDir.getPath(),OfflineApplicationBuilder.TARGET_OFFLINE_DIR_PATH + APP_JS_DIR_PATH + zipDir)
 	}
 	
 	
