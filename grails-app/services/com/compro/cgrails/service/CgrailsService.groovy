@@ -8,7 +8,8 @@ class CgrailsService {
 	
 	def public getCgrailsConfiguration() {	
 		if (cgrailsConfig == null) {
-			cgrailsConfig = new ConfigSlurper(GrailsUtil.environment).parse(new File("grails-app/conf/CgrailsConfig.groovy").toURI().toURL());
+			def classLoader = Thread.currentThread().contextClassLoader
+			cgrailsConfig = new ConfigSlurper(GrailsUtil.environment).parse(classLoader.loadClass('CgrailsConfig'));
 		}
 		return cgrailsConfig		
 	}
