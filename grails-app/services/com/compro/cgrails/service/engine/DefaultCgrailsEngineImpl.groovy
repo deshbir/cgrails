@@ -1,21 +1,23 @@
-package com.compro.cgrails.service
+package com.compro.cgrails.service.engine
 
 import grails.util.GrailsUtil
 
 import org.springframework.web.context.request.RequestContextHolder
 
-import com.compro.cgrails.CgrailsConstants
+import com.compro.cgrails.service.CgrailsService
 
 
-public class DefaultCgrailsServiceImpl implements CgrailsService {
+public class DefaultCgrailsEngineImpl implements CgrailsEngine {
 	
 	def grailsApplication
+	
+	CgrailsService cgrailsService
 	
 	public String getSkin() {
 		HashMap<?,?> paramsMap = RequestContextHolder.currentRequestAttributes().params
 		String skin = paramsMap["skin"]
 		def classLoader = Thread.currentThread().contextClassLoader
-		def cgrailsConfig = new ConfigSlurper(GrailsUtil.environment).parse(classLoader.loadClass('CgrailsConfig'))
+		def cgrailsConfig = cgrailsService.getCgrailsConfiguration();
 		if(skin != null) {
 			if ((!cgrailsConfig.cgrails.skinning.skins."${skin}") && 
 				(skin != cgrailsConfig.cgrails.skinning.baseskin)){

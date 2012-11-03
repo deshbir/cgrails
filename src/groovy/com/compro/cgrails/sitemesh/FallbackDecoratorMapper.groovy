@@ -14,11 +14,11 @@ import org.codehaus.groovy.grails.web.metaclass.ControllerDynamicMethods
 import org.codehaus.groovy.grails.web.servlet.GrailsApplicationAttributes
 import org.codehaus.groovy.grails.web.sitemesh.GrailsLayoutDecoratorMapper
 import org.codehaus.groovy.grails.web.sitemesh.GrailsNoDecorator
-import org.codehaus.groovy.grails.web.sitemesh.GroovyPageLayoutFinder
 import org.springframework.web.context.WebApplicationContext
 import org.springframework.web.context.support.WebApplicationContextUtils
 
 import com.compro.cgrails.CgrailsUtils
+import com.compro.cgrails.service.CgrailsService
 import com.compro.cgrails.service.SkinningService
 import com.opensymphony.module.sitemesh.Config
 import com.opensymphony.module.sitemesh.Decorator
@@ -27,7 +27,8 @@ import com.opensymphony.module.sitemesh.Page
 
 class FallbackDecoratorMapper extends  GrailsLayoutDecoratorMapper{	
 	
-	private SkinningService skinningService;	
+	private SkinningService skinningService;
+	private CgrailsService cgrailsService;
 	def grailsApplication
 	@Override
 	public void init(Config c, Properties properties, DecoratorMapper parentMapper) throws InstantiationException {
@@ -38,6 +39,7 @@ class FallbackDecoratorMapper extends  GrailsLayoutDecoratorMapper{
 		WebApplicationContext applicationContext = WebApplicationContextUtils.getRequiredWebApplicationContext(servletContext);
 		grailsApplication = applicationContext.getBean("grailsApplication", DefaultGrailsApplication.class);
 		skinningService = applicationContext.getBean("skinningService", SkinningService.class);
+		cgrailsService = applicationContext.getBean("cgrailsService", CgrailsService.class);
 	}
 	
 	
@@ -91,7 +93,7 @@ class FallbackDecoratorMapper extends  GrailsLayoutDecoratorMapper{
 	
 	private Decorator getCustomApplicationDefaultDecorator(HttpServletRequest request) {
 		def classLoader = Thread.currentThread().contextClassLoader
-		def cgrailsConfig = new ConfigSlurper(GrailsUtil.environment).parse(classLoader.loadClass('CgrailsConfig'))
+		def cgrailsConfig = cgrailsService.getCgrailsConfiguration();
 		def layoutNameConfig = cgrailsConfig.grails.sitemesh?.default?.layout
 		String layoutName = layoutNameConfig ? layoutNameConfig : "application"	
 		Decorator decorator = getCustomNamedDecorator(request,layoutName)

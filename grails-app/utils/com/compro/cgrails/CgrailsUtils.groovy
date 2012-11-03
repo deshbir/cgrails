@@ -11,8 +11,8 @@ class CgrailsUtils {
 	
 	def static String getSkin() {
 		def applicationContext = ServletContextHolder.getServletContext().getAttribute(GrailsApplicationAttributes.APPLICATION_CONTEXT)
-		def cgrailsService = applicationContext.getBean("cgrailsService");
-		return cgrailsService.getSkin();
+		def cgrailsEngine = applicationContext.getBean("cgrailsEngine");
+		return cgrailsEngine.getSkin();
 	}
 	
 	def static String getWorkflow() {

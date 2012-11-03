@@ -21,10 +21,12 @@ class SkinningService {
 	
 	def grailsApplication
 	
+	CgrailsService cgrailsService
+	
 	public String getCalculatedSkinForResource (String resourcePath, String currentSkin){		
 		def classLoader = Thread.currentThread().contextClassLoader		
 		//Reading Cgrails Configuration
-		def cgrailsConfig =  new ConfigSlurper(GrailsUtil.environment).parse(classLoader.loadClass('CgrailsConfig'))
+		def cgrailsConfig =  cgrailsService.getCgrailsConfiguration();
 		//Getting resource from resource path		
 		def resource =  groovyPagesTemplateEngine.getResourceForUri(resourcePath)
 		/**
@@ -55,7 +57,7 @@ class SkinningService {
 		def decorator = groovyPageLayoutFinder.getNamedDecorator(request,fulllayoutPath)
 		def classLoader = Thread.currentThread().contextClassLoader
 		//Reading Cgrails Configuration
-		def cgrailsConfig = new ConfigSlurper(GrailsUtil.environment).parse(classLoader.loadClass('CgrailsConfig'))
+		def cgrailsConfig = cgrailsService.getCgrailsConfiguration();
 		/**
 		 * FALLBACK LOOP
 		 * If the requested layout/decorator is found in current skin, exit the loop.

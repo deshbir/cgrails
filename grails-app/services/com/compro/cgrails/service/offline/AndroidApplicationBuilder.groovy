@@ -1,4 +1,4 @@
-package  com.compro.cgrails.service
+package  com.compro.cgrails.service.offline
 
 import com.compro.cgrails.CgrailsConstants
 

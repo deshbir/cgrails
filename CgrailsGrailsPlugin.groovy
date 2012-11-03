@@ -48,19 +48,19 @@ Brief summary/description of the plugin.
 
 	def doWithSpring = {
 		// TODO Implement runtime spring config (optional)
-		cgrailsService(com.compro.cgrails.service.DefaultCgrailsServiceImpl){
+		cgrailsEngine(com.compro.cgrails.service.engine.DefaultCgrailsEngineImpl){
 			it.autowire = true
 		}
-		offlineApplicationBuilder(com.compro.cgrails.service.OfflineApplicationBuilder){
+		offlineApplicationBuilder(com.compro.cgrails.service.offline.OfflineApplicationBuilder){
 			it.autowire = true
 		}
-		airApplicationBuilder(com.compro.cgrails.service.AirApplicationBuilder){
+		airApplicationBuilder(com.compro.cgrails.service.offline.AirApplicationBuilder){
 			it.autowire = true
 		}
-		androidApplicationBuilder(com.compro.cgrails.service.AndroidApplicationBuilder){
+		androidApplicationBuilder(com.compro.cgrails.service.offline.AndroidApplicationBuilder){
 			it.autowire = true
 		}
-		appjsApplicationBuilder(com.compro.cgrails.service.AppjsApplicationBuilder){
+		appjsApplicationBuilder(com.compro.cgrails.service.offline.AppjsApplicationBuilder){
 			it.autowire = true
 		}
 	}

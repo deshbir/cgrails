@@ -1,4 +1,4 @@
-package  com.compro.cgrails.service
+package  com.compro.cgrails.service.offline
 
 
 import grails.util.GrailsUtil
@@ -15,6 +15,7 @@ import org.apache.http.impl.client.DefaultHttpClient
 import org.apache.http.message.BasicNameValuePair
 
 import com.compro.cgrails.CgrailsConstants
+import com.compro.cgrails.service.CgrailsService
 
 class OfflineApplicationBuilder {
 	
@@ -29,7 +30,6 @@ class OfflineApplicationBuilder {
 	private static final String FONTS_DIR_NAME = "fonts"
 	private static final String CSS_DIR_NAME = "css"
 	private static final String INDEX_FILE_NAME = "index.html"	
-	private static final String CGRAILS_CONFIG_FILE_NAME = "CgrailsConfig"
 	private static final String TEMPLATES_FOLDER_NAME = "templates"	
 	private static final String PRELOADED_TEMPLATES_JS_PATH = "/offline/core/preloaded_templates.js"
 	private static final String PRELOADED_MODELS_JS_PATH = "/offline/core/preloaded_model.js"	
@@ -40,6 +40,8 @@ class OfflineApplicationBuilder {
 	 * AutoWiring grailsApplication instance 
 	 ***************************************/ 
 	def grailsApplication
+	
+	CgrailsService cgrailsService
 	
 	private static FileFilter cgrailsFileFilter = new FileFilter() {
 		public boolean accept(File file) {
@@ -183,7 +185,7 @@ class OfflineApplicationBuilder {
 	 ***********************************************************************/
 	public void preloadTemplates(String skin, String locale, String pluginVersion) {
 		def classLoader = Thread.currentThread().contextClassLoader
-		def config = new ConfigSlurper(GrailsUtil.environment).parse(classLoader.loadClass(CGRAILS_CONFIG_FILE_NAME))
+		def config = cgrailsService.getCgrailsConfiguration();
 		Boolean isConfigurable = config.cgrails.templates.useConfiguration
 		Set<String> templateList
 		
@@ -267,7 +269,7 @@ class OfflineApplicationBuilder {
 	 ***********************************************************************/
 	private void preloadModel(String pluginVersion) {
 		def classLoader = Thread.currentThread().contextClassLoader
-		def config = new ConfigSlurper(GrailsUtil.environment).parse(classLoader.loadClass(CGRAILS_CONFIG_FILE_NAME))
+		def config = cgrailsService.getCgrailsConfiguration();
 		String javascriptmvc = config.cgrails.javascriptMVC
 		if(javascriptmvc == null || javascriptmvc == "backbone") {
 			createBacbonePreloadedModel(pluginVersion);
