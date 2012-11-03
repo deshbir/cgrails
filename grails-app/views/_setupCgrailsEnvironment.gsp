@@ -21,8 +21,7 @@
 	<r:script type="text/javascript" disposition="defer">
 		if(window.parentSandboxBridge!=undefined){
 			localStorage = window.parentSandboxBridge;
-		}	
-		localStorage.clear();	
+		}				
 		com.compro.cgrails.preloadData();
 	</r:script>	
 	<g:if test="${params.mode == "debugAir"}">
