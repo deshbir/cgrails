@@ -877,18 +877,10 @@
   var namedParam    = /:\w+/g;
   var splatParam    = /\*\w+/g;
   var escapeRegExp  = /[-[\]{}()+?.,\\^$|#\s]/g;
-  
-  /*********************************************
-   * Modified BackBone JS
-   * Variable to store Last visited URL/Route.
-   **********************************************/  
-  var previousURL= "";
 
   // Set up all inheritable **Backbone.Router** properties and methods.
-  _.extend(Router.prototype, Events, {	
-  
-    
-    	
+  _.extend(Router.prototype, Events, {
+
     // Initialize is an empty function by default. Override it with your own
     // initialization logic.
     initialize: function(){},
@@ -903,38 +895,9 @@
       Backbone.history || (Backbone.history = new History);
       if (!_.isRegExp(route)) route = this._routeToRegExp(route);
       if (!callback) callback = this[name];
-      /*********************************************
-       * Modified BackBone JS
-       * Variable to store Last visited URL/Route.
-       **********************************************/  
       Backbone.history.route(route, _.bind(function(fragment) {
         var args = this._extractParameters(route, fragment);
-        var newFragments = fragment.split("/");
-        var previousFragments = previousURL.split("/");
-        var fragmentBuffer = "";
-        var isFragmentsMatch = false;
-        for (var i=0; i<newFragments.length; i++ ) { 
-        	if (newFragments[i] != previousFragments[i] && !isFragmentsMatch) {
-        		isFragmentsMatch = true;	
-        	}
-        	if (i == 0) {
-        		fragmentBuffer = newFragments[i];
-        	}
-        	else {
-        		fragmentBuffer += "/" + newFragments[i];
-        	}
-        	
-        	if (isFragmentsMatch) {
-        	     var functionname = this.routes[fragmentBuffer];
-        	     if (functionname == null) {
-			         callback && callback.apply(this, args);
-			         break;
-        	     }
-		     this[functionname].apply();   		
-        	}        	
-        }
-        previousURL = fragment;       
-       
+        callback && callback.apply(this, args);
         this.trigger.apply(this, ['route:' + name].concat(args));
         Backbone.history.trigger('route', this, name, args);
       }, this));
