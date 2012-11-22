@@ -52,6 +52,8 @@ target(generate: "Generates Offline version of the application") {
    
    grailsConsole.updateStatus "Started Generating offline version for " + skin + " skin.....";
    //depends(deployCSS)
+   grailsConsole.updateStatus "Authenticating User.....";
+   offlineApplicationBuilder.authenticate();
    grailsConsole.updateStatus "Cleaning older package.....";
    offlineApplicationBuilder.deleteOldPackage();
    grailsConsole.updateStatus "Successfully cleaned older package.....";

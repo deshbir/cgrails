@@ -1,20 +1,27 @@
 package  com.compro.cgrails.service.offline
 
 
-import grails.util.GrailsUtil
 import net.sf.json.JSONObject
 
 import org.apache.commons.io.IOUtils
+import org.apache.http.HttpEntity
 import org.apache.http.HttpResponse
 import org.apache.http.NameValuePair
+import org.apache.http.client.CookieStore
 import org.apache.http.client.HttpClient
 import org.apache.http.client.entity.UrlEncodedFormEntity
 import org.apache.http.client.methods.HttpGet
 import org.apache.http.client.methods.HttpPost
+import org.apache.http.client.protocol.ClientContext
+import org.apache.http.impl.client.BasicCookieStore
 import org.apache.http.impl.client.DefaultHttpClient
 import org.apache.http.message.BasicNameValuePair
+import org.apache.http.protocol.BasicHttpContext
+import org.apache.http.protocol.HttpContext
+import org.apache.http.util.EntityUtils
 
 import com.compro.cgrails.CgrailsConstants
+import com.compro.cgrails.exception.UnauthorizedUserException
 import com.compro.cgrails.service.CgrailsService
 
 class OfflineApplicationBuilder {
@@ -35,7 +42,9 @@ class OfflineApplicationBuilder {
 	private static final String PRELOADED_MODELS_JS_PATH = "/offline/core/preloaded_model.js"	
 	private static final String APP_HOST = "localhost"
 	private static final String APP_PORT = "8080"	
-	
+	private CookieStore cookieStore = new BasicCookieStore();
+	private HttpContext httpContext = new BasicHttpContext();
+	private HttpClient httpClient = new DefaultHttpClient();
 	/***************************************
 	 * AutoWiring grailsApplication instance 
 	 ***************************************/ 
@@ -166,15 +175,10 @@ class OfflineApplicationBuilder {
 		if(mode == "debugAir"){
 			urlBuilder.append('&mode=debugAir');
 		}
-		
 		//Request SinglePage Module
-		DefaultHttpClient httpClient = new DefaultHttpClient();
-		HttpGet getRequest = new HttpGet(urlBuilder.toString());		
-		HttpResponse response = httpClient.execute(getRequest);
-		
+		HttpResponse response = makeHttpGet(urlBuilder.toString())
 		//Validate HTML response
 		validateResponse(response, urlBuilder.toString());
-		
 		//Write response as HTML to disk
 		writeFile(response.getEntity().getContent(), new File(OFFLINE_PACKAGE_DIR_PATH + targetFileName));
 	}
@@ -207,21 +211,17 @@ class OfflineApplicationBuilder {
 				.append(grailsApplication.metadata['app.name']).append("/cgrailstemplate/?workflow=")
 				.append(CgrailsConstants.WORKFLOW_OFFLINE)
 				.append("&lang=").append(locale);
-			
-			HttpClient httpclient = new DefaultHttpClient();
-			HttpPost httppost = new HttpPost(urlBuilder.toString());
-			List<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>(2);
-			nameValuePairs.add(new BasicNameValuePair("skin", skin));
-			nameValuePairs.add(new BasicNameValuePair("path", TEMPLATES_FOLDER_NAME + "/" + templatename));
-			httppost.setEntity(new UrlEncodedFormEntity(nameValuePairs));
-			
+			Map<String,String> parameters = new HashMap<String,String>(2);
+			parameters.put("skin", skin)
+			parameters.put("path", TEMPLATES_FOLDER_NAME + "/" + templatename);
 			//Request a template
-			HttpResponse response = httpclient.execute(httppost);
-			
+			HttpResponse response = makeHttpPost(urlBuilder.toString(), parameters)
 			//Get template response as String
 			template = getResponseAsString(response, urlBuilder.toString(), true);
 			template = template.replace("\r\n", "").replace("\t", "");
 			jsonTemplate.put(templatename, template);
+			HttpEntity entity = response.getEntity()
+			entity.consumeContent()
 		}
 		String contentString = "com.compro.cgrails.OfflineTemplates = " + jsonTemplate.toString(8);
 				
@@ -301,11 +301,8 @@ class OfflineApplicationBuilder {
 				.append(appName).append(url);
 				String modifiedUrl = urlBuilder.toString();
 				modifiedUrl += (modifiedUrl.indexOf('?') >= 0) ? "&workflow=" + CgrailsConstants.WORKFLOW_OFFLINE : "?workflow=" + CgrailsConstants.WORKFLOW_OFFLINE
-				DefaultHttpClient httpClient = new DefaultHttpClient();
-				HttpGet getRequest = new HttpGet(modifiedUrl);
-				HttpResponse response = httpClient.execute(getRequest);				
+				HttpResponse response = makeHttpGet(modifiedUrl)				
 				String apiResponse = getResponseAsString(response, urlBuilder.toString(), false);
-				
 				modelsJSON.put("/" + appName + url, apiResponse);
 			}
 			
@@ -399,4 +396,39 @@ class OfflineApplicationBuilder {
 		writer.write(inputString);
 		writer.close();
 	}
+	public void authenticate(){
+			def config = cgrailsService.getCgrailsConfiguration();
+			def username = config.cgrails.offline.username
+			def password = config.cgrails.offline.password
+			if(!(username && password)){
+				throw new UnauthorizedUserException()
+			}
+			httpContext.setAttribute(ClientContext.COOKIE_STORE, cookieStore);
+			def urlBuilder = new StringBuilder("http://localhost:8080/");
+			urlBuilder.append(grailsApplication.metadata['app.name']).append("/j_spring_security_check");
+			Map<String,String> parameters = new HashMap<String,String>(2);
+			parameters.put("j_username", username)
+			parameters.put("j_password", password);
+			HttpResponse response = makeHttpPost(urlBuilder.toString(),parameters);
+			HttpEntity entity = response.getEntity();			
+			entity.consumeContent();
+	}
+	private HttpResponse makeHttpPost(String url,Map<String,String> parameters){
+		HttpPost httpPost = new HttpPost(url);
+		httpPost.addHeader("Content-Type", "application/x-www-form-urlencoded");
+		Set<String> paramKeys =  parameters.keySet();
+		List<NameValuePair> nameValuePairs = new ArrayList<NameValuePair>();
+		for(String param : paramKeys){
+			nameValuePairs.add(new BasicNameValuePair(param, parameters.get(param)));
+		}
+		httpPost.setEntity(new UrlEncodedFormEntity(nameValuePairs));
+		HttpResponse response = httpClient.execute(httpPost, httpContext);
+		return response;
+	}
+	private HttpResponse makeHttpGet(String url){
+		HttpGet httpGet = new HttpGet(url);
+		HttpResponse response = httpClient.execute(httpGet, httpContext);
+		return response;
+	}
+	
 }

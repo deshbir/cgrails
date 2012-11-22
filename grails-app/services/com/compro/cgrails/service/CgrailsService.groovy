@@ -12,6 +12,5 @@ class CgrailsService {
 			cgrailsConfig = new ConfigSlurper(GrailsUtil.environment).parse(classLoader.loadClass('CgrailsConfig'));
 		}
 		return cgrailsConfig		
-	}
-	
+	}	
 }
