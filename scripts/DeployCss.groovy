@@ -66,6 +66,11 @@ private runCompileLess(def skinname, def Constants, def config){
 				arg(value:"${ouputFilePath}")
 				//arg(value:"-compress")
 			}
+		} else {
+			grailsConsole.updateStatus "ERROR.....";
+			grailsConsole.updateStatus "LESS file not found: " + inputFilePath;
+			grailsConsole.updateStatus "Please specify correct LESS file path in CgrailsConfig.";
+			exit(1)
 		}
 	}
 }
@@ -88,6 +93,11 @@ private runRTLCompileLess(def skinname, def Constants, def config){
 				arg(value:"${inputFilePath}")
 				arg(value:"${ouputFilePath}")
 			}
+		} else {
+			grailsConsole.updateStatus "ERROR.....";
+			grailsConsole.updateStatus "File not found: " + inputFilePath;
+			grailsConsole.updateStatus "Please specify correct LESS file path in CgrailsConfig.";
+			exit(1)
 		}
 	}
 }
